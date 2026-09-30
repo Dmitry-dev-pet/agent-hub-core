@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-hub-core:v0.1:onboarding-receipt",
+  "title": "Agent Hub OnboardingReceipt v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "mode",
+    "owner",
+    "status",
+    "phases",
+    "inventory",
+    "unresolved",
+    "fresh_recovery",
+    "authoritative_refs"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "mode": {
+      "enum": ["brownfield", "greenfield"]
+    },
+    "owner": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$"
+    },
+    "status": {
+      "enum": ["verified", "blocked"]
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "discover",
+        "classify",
+        "build",
+        "validate",
+        "watch",
+        "receipt"
+      ],
+      "properties": {
+        "discover": {"enum": ["completed", "skipped", "blocked"]},
+        "classify": {"enum": ["completed", "skipped", "blocked"]},
+        "build": {"enum": ["completed", "skipped", "blocked"]},
+        "validate": {"enum": ["completed", "skipped", "blocked"]},
+        "watch": {"enum": ["completed", "skipped", "blocked"]},
+        "receipt": {"enum": ["completed", "skipped", "blocked"]}
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repositories_seen",
+        "repositories_recorded",
+        "project_families",
+        "capabilities",
+        "credential_values_copied"
+      ],
+      "properties": {
+        "repositories_seen": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "repositories_recorded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "project_families": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "capabilities": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "credential_values_copied": {
+          "const": false
+        }
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "subject", "question"],
+        "properties": {
+          "kind": {
+            "enum": [
+              "project_family",
+              "alias",
+              "capability",
+              "lifecycle",
+              "credential_route",
+              "other"
+            ]
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "fresh_recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed", "passed", "client"],
+      "properties": {
+        "performed": {
+          "type": "boolean"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "client": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "authoritative_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "value"],
+        "properties": {
+          "type": {
+            "enum": [
+              "repository",
+              "file",
+              "commit",
+              "pull_request",
+              "issue",
+              "workflow_run",
+              "artifact",
+              "deployment",
+              "runtime",
+              "url",
+              "other"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
