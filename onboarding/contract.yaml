@@ -47,14 +47,14 @@ receipt:
   kind: onboarding_receipt
   statuses:
     verified:
-      complete_inventory: true
+      complete_inventory_required: true
       unresolved_allowed: false
       fresh_recovery_required: true
     partial:
-      complete_inventory: true
+      complete_inventory_required: true
       unresolved_allowed: true
       unresolved_required: true
       fresh_recovery_required: true
     blocked:
-      complete_inventory: false
+      complete_inventory_required: false
       fresh_recovery_required: false
