@@ -226,9 +226,9 @@ def validate_document(kind: str, document: dict[str, Any]) -> None:
                 )
 
         if status == "blocked":
-            if after not in {"blocked", "dormant"}:
+            if after not in {"blocked", "dormant", "degraded"}:
                 raise ProtocolValidationError(
-                    "capability_activation_receipt: blocked activation must end in blocked or dormant"
+                    "capability_activation_receipt: blocked activation must preserve degraded/dormant state or end blocked"
                 )
             if verification["passed"]:
                 raise ProtocolValidationError(
