@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "capability": "github-native-watcher",
+  "state": "degraded",
+  "required_for_core": false,
+  "summary": "Scheduled discovery works for public repositories only; complete private-repository coverage requires a read-only GitHub App installation.",
+  "prerequisites": [
+    {
+      "id": "read-only-github-app",
+      "kind": "installation",
+      "status": "missing",
+      "required_for_ready": true,
+      "user_action_required": true,
+      "description": "Install the reviewed read-only GitHub App for the account and configure its provider-stored credential route."
+    }
+  ],
+  "limitations": [
+    "Scheduled discovery cannot prove completeness for private repositories."
+  ],
+  "activation": {
+    "available": true,
+    "route": "manual",
+    "user_action_required": true,
+    "instruction_ref": "docs/capability-activation-v0.1.md"
+  },
+  "authoritative_refs": [
+    {
+      "type": "repository",
+      "value": "example-org/agent-hub"
+    },
+    {
+      "type": "workflow_run",
+      "value": "example-org/agent-hub/actions/runs/123"
+    }
+  ]
+}
