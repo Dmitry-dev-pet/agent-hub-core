@@ -2,22 +2,21 @@
   "version": 1,
   "operations": {
     "demo-record": {
-      "trigger_prefix": "[demo-record] ",
-      "syntax": "[demo-record] <client>",
+      "trigger_prefix": "[agent-hub-demo] ",
+      "syntax": "[agent-hub-demo] <client>",
       "agent_routable": true,
       "credential_refs": [],
       "execution_level": "L1",
-      "execution_surface": "github_issue_comment",
-      "ledger_issue": 5,
-      "comment_format": [
+      "execution_surface": "github_issue_create",
+      "index_issue": 5,
+      "issue_body_format": [
         "agent-hub-demo",
-        "operation: demo.record",
         "client: <client>",
         "policy: demo/control-plane.json"
       ],
       "acceptance_proof": [
-        "issue #5 contains the new comment",
-        "the re-read comment matches the requested client and policy"
+        "the newly created public issue can be re-read from GitHub",
+        "the re-read title and body match the requested client and policy"
       ]
     }
   }

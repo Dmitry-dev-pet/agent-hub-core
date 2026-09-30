@@ -43,14 +43,14 @@ model without a special Agent Hub connector:
 ChatGPT or Grok
   -> normal GitHub connection
   -> same demo policy
-  -> same public ledger issue
-  -> same comment mutation
+  -> same public issue shape
+  -> same issue-create mutation
   -> read-back verification
 ```
 
 The demo uses no custom secrets, workflow runner, or coding-agent runtime. The
-published contract selects the lowest sufficient level: one direct GitHub comment
-mutation followed by read-back verification.
+published contract selects the lowest sufficient level: one direct GitHub issue
+creation followed by read-back verification.
 
 ## Install
 

@@ -11,10 +11,11 @@ or custom secret is required.
 
 The only routable operation is `demo-record`.
 
-A compliant AI chat reads the policy and live contract, adds one comment to the
-public ledger issue, then re-reads the ledger before claiming success.
+A compliant AI chat reads the policy and live contract, creates one public proof
+issue, then re-reads that issue before claiming success.
 
-The durable ledger is issue **#5** in this repository.
+Issue **#5** is the public index explaining the demo. Each run creates a separate
+public receipt issue.
 
 ## Run it from ChatGPT
 
@@ -25,8 +26,8 @@ Use the Agent Hub demo policy in demo/AGENTS.md.
 Record one public demo entry.
 Client: chatgpt.
 Follow demo/control-plane.json exactly.
-Do not use a coding agent or edit repository files.
-Do not claim success until you re-read and verify the public ledger.
+Do not use a coding agent, workflow, or repository file edit.
+Do not claim success until you re-read and verify the created GitHub issue.
 ```
 
 ## Run the same operation from Grok
@@ -39,8 +40,8 @@ Use the Agent Hub demo policy in demo/AGENTS.md.
 Record one public demo entry.
 Client: grok.
 Follow demo/control-plane.json exactly.
-Do not use a coding agent or edit repository files.
-Do not claim success until you re-read and verify the public ledger.
+Do not use a coding agent, workflow, or repository file edit.
+Do not claim success until you re-read and verify the created GitHub issue.
 ```
 
 The operation and policy are identical. Only the client label differs.
@@ -54,27 +55,27 @@ AI chat
   -> normal GitHub connection
   -> reads demo/AGENTS.md
   -> reads demo/control-plane.json
-  -> writes one comment to issue #5
-  -> re-reads issue #5
-  -> verifies its own comment
+  -> creates [agent-hub-demo] <client> issue
+  -> re-reads that issue
+  -> verifies title + body
 ```
 
-The required comment format is:
+The required issue body is:
 
 ```text
 agent-hub-demo
-operation: demo.record
 client: <client>
 policy: demo/control-plane.json
 ```
 
-After one ChatGPT run and one Grok run, issue #5 should visibly contain both entries.
+After one ChatGPT run and one Grok run, the public issue list should visibly contain
+both receipts.
 
 ## What this proves
 
 GitHub proves that both interactions used the same durable policy surface and the same
-operation target. A screenshot or shared transcript from each AI host can be paired
-with the public ledger when demonstrating which host produced each entry.
+operation shape. A screenshot or shared transcript from each AI host can be paired
+with its public receipt issue when demonstrating which host produced each entry.
 
 The important architectural point is that the policy and evidence are not stored in
 ChatGPT or Grok.
@@ -85,9 +86,9 @@ ChatGPT or Grok.
 - no background service;
 - no workflow runner;
 - no autonomous coding agent;
-- no direct repository-file mutation;
+- no repository-file mutation;
 - L1 direct GitHub mutation is the lowest sufficient level;
-- execution is not accepted until the comment is read back.
+- execution is not accepted until the issue is read back.
 
 This demo is intentionally smaller than a full Agent Hub instance. It isolates the
 cross-vendor property so it can be understood in under a minute.
