@@ -2,6 +2,8 @@ import json
 import unittest
 from pathlib import Path
 
+import yaml
+
 from agent_hub_core.validation import (
     ProtocolValidationError,
     check_schemas,
@@ -114,6 +116,20 @@ class ProtocolValidationTests(unittest.TestCase):
         receipt["status"] = "partial"
         with self.assertRaises(ProtocolValidationError):
             validate_document("onboarding_receipt", receipt)
+
+    def test_machine_readable_onboarding_contract_matches_protocol(self):
+        contract = yaml.safe_load(
+            (ROOT / "onboarding" / "contract.yaml").read_text(encoding="utf-8")
+        )
+        self.assertEqual(contract["version"], 1)
+        self.assertEqual(contract["default_mode"], "brownfield")
+        self.assertEqual(
+            [phase["id"] for phase in contract["phases"]],
+            ["discover", "classify", "build", "validate", "watch", "receipt"],
+        )
+        self.assertFalse(contract["rules"]["guess_ambiguous_relationships"])
+        self.assertFalse(contract["rules"]["copy_credential_values"])
+        self.assertFalse(contract["fresh_recovery"]["previous_conversation_allowed"])
 
 
 if __name__ == "__main__":
