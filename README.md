@@ -116,6 +116,7 @@ v0.1 includes executable JSON Schemas for:
 - VerificationResult
 - lifecycle transitions
 - reviewed control-plane contracts
+- onboarding receipts
 
 See `docs/protocol-v0.1.md` and `examples/v0.1/`.
 
@@ -137,6 +138,31 @@ execution_levels: [L2]
 An operation is available to an AI router only when the owning contract explicitly
 sets `agent_routable: true`. Operator-only or legacy operations can remain present
 without becoming AI-accessible.
+
+## Brownfield onboarding
+
+The default product path is not an empty account. It is an existing GitHub account
+with repositories, workflows, old experiments, project families, and ambiguous
+relationships.
+
+The portable onboarding protocol is:
+
+```text
+DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT
+```
+
+A client should discover the complete visible repository set, preserve every
+repository, normalize only high-confidence project relationships, record ambiguities
+instead of guessing, build/validate the Hub, and then prove fresh-session recovery.
+
+The machine-readable `onboarding_receipt` has three outcomes:
+
+- `verified` — complete inventory, no unresolved items, fresh recovery passed;
+- `partial` — complete and recoverable, but explicit semantic ambiguities remain;
+- `blocked` — trustworthy completeness/build/validation/recovery could not be
+  established.
+
+The single machine-readable entry point is `onboarding/contract.yaml`. See also `docs/onboarding-v0.1.md` and `skills/bootstrap-instance/SKILL.md`.
 
 ## Zero-custom-secret bootstrap
 

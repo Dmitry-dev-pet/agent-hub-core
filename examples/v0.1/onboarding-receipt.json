@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "mode": "brownfield",
+  "owner": "example-org",
+  "status": "verified",
+  "phases": {
+    "discover": "completed",
+    "classify": "completed",
+    "build": "completed",
+    "validate": "completed",
+    "watch": "skipped",
+    "receipt": "completed"
+  },
+  "inventory": {
+    "repositories_seen": 12,
+    "repositories_recorded": 12,
+    "project_families": 4,
+    "capabilities": 3,
+    "credential_values_copied": false
+  },
+  "unresolved": [],
+  "fresh_recovery": {
+    "performed": true,
+    "passed": true,
+    "client": "second-ai-host"
+  },
+  "authoritative_refs": [
+    {
+      "type": "repository",
+      "value": "example-org/agent-hub"
+    },
+    {
+      "type": "file",
+      "value": ".agent-hub/agent-hub.yaml"
+    },
+    {
+      "type": "file",
+      "value": ".agent-hub/projects.yaml"
+    }
+  ]
+}

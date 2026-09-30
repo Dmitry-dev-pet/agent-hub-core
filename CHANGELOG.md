@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- add brownfield-first onboarding protocol with DISCOVER → CLASSIFY → BUILD → VALIDATE → WATCH → RECEIPT phases;
+- add machine-readable `onboarding/contract.yaml` and portable bootstrap skill;
+- add executable `onboarding_receipt` schema with verified / partial / blocked semantics;
+- require complete discovered-repository coverage and successful fresh-session recovery for verified/partial receipts;
+- add onboarding examples and acceptance tests.
+
 ## 0.1.1 — 2026-09-30
 
 - add zero-custom-secret instance bootstrap;

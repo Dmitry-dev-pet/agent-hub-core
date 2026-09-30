@@ -1,0 +1,60 @@
+version: 1
+name: agent-hub-onboarding
+default_mode: brownfield
+
+phases:
+  - id: discover
+    required: true
+    acceptance: complete_visible_repository_set
+  - id: classify
+    required: true
+    acceptance: every_repository_preserved_and_ambiguities_explicit
+  - id: build
+    required: true
+    acceptance: portable_instance_written_without_secret_values
+  - id: validate
+    required: true
+    acceptance: instance_validation_passed
+  - id: watch
+    required: false
+    acceptance: watcher_configured_or_intentionally_skipped
+  - id: receipt
+    required: true
+    acceptance: onboarding_receipt_validated
+
+rules:
+  preserve_every_discovered_repository: true
+  guess_ambiguous_relationships: false
+  mutate_repository_lifecycle_during_classification: false
+  copy_credential_values: false
+  live_github_outranks_conversation_memory: true
+
+fresh_recovery:
+  required_for:
+    - verified
+    - partial
+  previous_conversation_allowed: false
+  second_ai_vendor_preferred: true
+  must_recover:
+    - owner
+    - repository_inventory
+    - project_routes
+    - capabilities
+    - credential_metadata
+    - unresolved_items
+
+receipt:
+  kind: onboarding_receipt
+  statuses:
+    verified:
+      complete_inventory_required: true
+      unresolved_allowed: false
+      fresh_recovery_required: true
+    partial:
+      complete_inventory_required: true
+      unresolved_allowed: true
+      unresolved_required: true
+      fresh_recovery_required: true
+    blocked:
+      complete_inventory_required: false
+      fresh_recovery_required: false
