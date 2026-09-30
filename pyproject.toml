@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-hub-core"
-version = "0.1.0"
+version = "0.1.1"
 description = "Portable GitHub-native protocol and reference implementation for AI work routing."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,6 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Agent Hub Core contributors" }]
 dependencies = [
   "jsonschema>=4.23,<5",
+  "PyYAML>=6.0,<7",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",

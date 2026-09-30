@@ -4,7 +4,7 @@ Agent Hub Core is a portable, GitHub-native protocol and reference implementatio
 for routing AI-assisted work across repositories, APIs, reviewed control planes,
 ephemeral runtimes, coding agents, and machine-bound executors.
 
-Version: **0.1.0**
+Version: **0.1.1**
 
 ## Core model
 
@@ -119,6 +119,52 @@ execution_levels: [L2]
 An operation is available to an AI router only when the owning contract explicitly
 sets `agent_routable: true`. Operator-only or legacy operations can remain present
 without becoming AI-accessible.
+
+## Zero-custom-secret bootstrap
+
+A new instance does not need a PAT, API key, SSH key, or other custom secret:
+
+```bash
+agent-hub-core init --owner example-org \
+  --project example-org/public-repo-one \
+  --project example-org/public-repo-two
+
+agent-hub-core validate-instance
+agent-hub-core doctor
+```
+
+The generated `.agent-hub/` contains:
+
+```text
+.agent-hub/
+├── agent-hub.yaml
+├── projects.yaml
+├── capabilities.yaml
+├── credentials.yaml
+└── context/
+```
+
+The initial `credentials.yaml` has an empty `credential_routes` mapping. The
+default capabilities are public GitHub reads (L0), optional ambient connected GitHub
+access (L0/L1), and GitHub Actions with provider-managed `GITHUB_TOKEN` (L3).
+No custom secret is created or requested.
+
+`doctor` uses GitHub's public API without an Authorization header to check public
+repositories. Use `doctor --offline` for a configuration-only check.
+
+Privileged L2 capabilities are opt-in. Add one only when its reviewed control plane
+exists; any credential metadata then belongs to that capability route, while the
+secret value stays in the provider's secret store.
+
+CI also runs:
+
+```bash
+agent-hub-core bootstrap-acceptance
+```
+
+This creates a fresh five-repository instance in a temporary directory, verifies that
+zero custom credentials are required, runs the offline doctor, and completes protocol
+conformance.
 
 ## Instance configuration
 
