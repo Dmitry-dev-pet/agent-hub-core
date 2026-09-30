@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "operations": {
+    "demo-increment": {
+      "trigger_prefix": "[demo-increment] ",
+      "syntax": "[demo-increment] <client>",
+      "agent_routable": true,
+      "credential_refs": [],
+      "execution_level": "L2",
+      "execution_surface": "github_issue",
+      "acceptance_proof": [
+        "request issue is closed by the workflow",
+        "default-branch demo/state.json records the issue number and client"
+      ]
+    }
+  }
+}
