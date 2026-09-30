@@ -29,6 +29,7 @@ class ProtocolValidationTests(unittest.TestCase):
             "verification-result.json": "verification_result",
             "lifecycle-transition.json": "lifecycle_transition",
             "control-plane.json": "control_plane",
+            "onboarding-receipt.json": "onboarding_receipt",
         }
         for filename, kind in mapping.items():
             with self.subTest(filename=filename):
@@ -71,6 +72,48 @@ class ProtocolValidationTests(unittest.TestCase):
         contract["operations"]["credential-export"].pop("reason")
         with self.assertRaises(ProtocolValidationError):
             validate_document("control_plane", contract)
+
+    def test_verified_onboarding_requires_complete_inventory(self):
+        receipt = self.load("onboarding-receipt.json")
+        receipt["inventory"]["repositories_recorded"] -= 1
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("onboarding_receipt", receipt)
+
+    def test_verified_onboarding_rejects_unresolved_items(self):
+        receipt = self.load("onboarding-receipt.json")
+        receipt["unresolved"].append(
+            {
+                "kind": "project_family",
+                "subject": "example-org/app-ui + example-org/app-api",
+                "question": "Are these one project family?",
+            }
+        )
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("onboarding_receipt", receipt)
+
+    def test_verified_onboarding_requires_fresh_recovery(self):
+        receipt = self.load("onboarding-receipt.json")
+        receipt["fresh_recovery"]["passed"] = False
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("onboarding_receipt", receipt)
+
+    def test_partial_onboarding_keeps_explicit_ambiguity(self):
+        receipt = self.load("onboarding-receipt.json")
+        receipt["status"] = "partial"
+        receipt["unresolved"] = [
+            {
+                "kind": "alias",
+                "subject": "example-org/legacy-ui",
+                "question": "Which current project alias should resolve this repository?",
+            }
+        ]
+        validate_document("onboarding_receipt", receipt)
+
+    def test_partial_onboarding_requires_unresolved_item(self):
+        receipt = self.load("onboarding-receipt.json")
+        receipt["status"] = "partial"
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("onboarding_receipt", receipt)
 
 
 if __name__ == "__main__":
