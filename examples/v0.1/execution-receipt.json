@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "status": "executed",
+  "capability": "workflow-runtime",
+  "authoritative_refs": [
+    {
+      "type": "workflow_run",
+      "value": "example-run-123"
+    }
+  ],
+  "observations": [
+    "workflow completed"
+  ]
+}

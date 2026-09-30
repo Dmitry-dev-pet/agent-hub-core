@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "operations": {
+    "create-repository": {
+      "agent_routable": true,
+      "trigger_prefix": "[create-repo] ",
+      "syntax": "[create-repo] <repository-name>",
+      "credential_refs": [
+        "EXAMPLE_ADMIN_CREDENTIAL"
+      ]
+    },
+    "credential-export": {
+      "agent_routable": false,
+      "trigger_prefix": "[credential-export] ",
+      "syntax": "[credential-export] <name>",
+      "legacy_operator_only": true,
+      "reason": "Operator-only operation; credential export is outside Agent Hub routing."
+    }
+  }
+}

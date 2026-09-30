@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-hub-core"
+version = "0.1.0"
+description = "Portable GitHub-native protocol and reference implementation for AI work routing."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Agent Hub Core contributors" }]
+dependencies = [
+  "jsonschema>=4.23,<5",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2,<2",
+]
+
+[project.scripts]
+agent-hub-core = "agent_hub_core.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["agent_hub_core*"]
+
+[tool.setuptools.package-data]
+"agent_hub_core.schemas.v0_1" = ["*.json"]

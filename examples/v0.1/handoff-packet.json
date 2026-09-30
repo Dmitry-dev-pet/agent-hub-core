@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "project": "demo-app",
+  "outcome": "Publish the validated build artifact.",
+  "verified_facts": [
+    "authoritative repository state was refreshed"
+  ],
+  "remaining_work": [
+    "run build",
+    "verify artifact"
+  ],
+  "acceptance_proof": [
+    "workflow succeeds",
+    "artifact exists"
+  ],
+  "execution_envelope": {
+    "repositories": [
+      "example-org/demo-app"
+    ],
+    "allowed": [
+      "workflow_dispatch"
+    ],
+    "forbidden": [
+      "credential_change"
+    ]
+  },
+  "authoritative_refs": [
+    {
+      "type": "repository",
+      "value": "example-org/demo-app"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+version: 1
+
+capabilities:
+  github:
+    kind: connected_runtime
+    execution_levels: [L0, L1]
+
+  repo-admin:
+    kind: reviewed_control_plane
+    execution_levels: [L2]
+    operations_contract:
+      provider: github
+      repo: example-org/repo-admin
+      path: control-plane.json
+
+  workflow-runtime:
+    kind: ephemeral_runtime
+    execution_levels: [L3]
+
+  coding-agent:
+    kind: coding_runtime
+    execution_levels: [L4]
+
+  machine-executor:
+    kind: machine_bound_runtime
+    execution_levels: [L5]

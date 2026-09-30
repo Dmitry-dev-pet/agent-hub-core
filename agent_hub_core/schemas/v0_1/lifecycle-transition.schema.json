@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-hub-core:v0.1:lifecycle-transition",
+  "title": "Agent Hub lifecycle transition v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "from",
+    "to"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "from": {
+      "enum": [
+        "resolved",
+        "planned",
+        "executing",
+        "executed",
+        "verifying"
+      ]
+    },
+    "to": {
+      "enum": [
+        "planned",
+        "executing",
+        "executed",
+        "verifying",
+        "verified",
+        "blocked"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "from": {
+          "const": "resolved"
+        },
+        "to": {
+          "enum": [
+            "planned",
+            "blocked"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "planned"
+        },
+        "to": {
+          "enum": [
+            "executing",
+            "blocked"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "executing"
+        },
+        "to": {
+          "enum": [
+            "executed",
+            "blocked"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "executed"
+        },
+        "to": {
+          "enum": [
+            "verifying",
+            "blocked"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "verifying"
+        },
+        "to": {
+          "enum": [
+            "verified",
+            "blocked"
+          ]
+        }
+      }
+    }
+  ]
+}

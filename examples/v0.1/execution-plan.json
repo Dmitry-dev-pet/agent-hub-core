@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "project": "demo-app",
+  "selected_level": "L3",
+  "reason": "The build requires an ephemeral filesystem and runtime.",
+  "capability": "workflow-runtime",
+  "acceptance_proof": [
+    "workflow succeeds",
+    "artifact exists"
+  ]
+}
