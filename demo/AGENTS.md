@@ -4,40 +4,44 @@ This directory is a live, zero-custom-secret Agent Hub demo.
 
 ## User goal
 
-A user may ask an AI chat to increment the public demo counter and identify the
-client that is making the request.
+Record one public proof entry from the current AI host.
 
 ## Authoritative state
 
 - `demo/control-plane.json` is the live operation contract.
-- `demo/state.json` is the public durable state.
-- GitHub Issues and Actions are the execution and receipt surfaces.
+- Public issue **#5** is the durable demo ledger.
+- The issue comment list is authoritative evidence.
 
 Do not treat conversation memory as authoritative.
 
 ## Required routing
 
-For an increment request:
+For a demo record request:
 
 1. Read `demo/control-plane.json`.
-2. Select the agent-routable `demo-increment` operation.
-3. Do **not** edit `demo/state.json` directly, even when the chat has a direct
-   GitHub file-write tool.
-4. Open an issue with the exact title:
-   `[demo-increment] <client>`
-5. Use this exact JSON body:
-   `{"confirm":"DEMO_INCREMENT"}`
-6. Do not claim success when the issue is merely created.
-7. Verify completion only after the issue is closed by the workflow and
-   `demo/state.json` on the default branch contains the issue number and client.
+2. Select the agent-routable `demo-record` operation.
+3. Use the normal connected GitHub interface. No coding agent or separate runtime is
+   needed.
+4. Add exactly one comment to issue #5 with this four-line format:
 
-The repository workflow accepts mutation requests only from the repository owner.
-Forks therefore remain independently reproducible by their own owners.
+   ```text
+   agent-hub-demo
+   operation: demo.record
+   client: <client>
+   policy: demo/control-plane.json
+   ```
+
+5. Re-read the comments on issue #5.
+6. Do not claim success until the newly written comment is visible with the exact
+   operation, client, and policy values.
+
+Do not edit repository files as part of this operation. The lowest sufficient
+execution level is L1: a direct GitHub comment mutation followed by a read-back.
 
 ## Why this demo exists
 
-The point is not the counter. The point is that different AI hosts can discover and
+The point is not the comment. The point is that different AI hosts can discover and
 obey the same GitHub-native policy without an Agent Hub-specific connector, daemon,
-agent runtime, or custom secret.
+agent runtime, workflow, MCP gateway, or custom secret.
 
 The chat is the interface. GitHub is authoritative state. Executed is not verified.
