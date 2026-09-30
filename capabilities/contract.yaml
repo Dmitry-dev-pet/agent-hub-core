@@ -1,0 +1,61 @@
+version: 1
+name: agent-hub-capability-readiness
+
+states:
+  ready:
+    usable: full
+    meaning: all prerequisites required for full capability are satisfied
+  degraded:
+    usable: partial
+    meaning: capability works with explicit limitations because a prerequisite for full readiness is missing
+  dormant:
+    usable: false
+    meaning: capability is known and activatable but not currently enabled
+  blocked:
+    usable: false
+    meaning: requested activation cannot currently proceed or verify
+
+principles:
+  core_onboarding_must_not_require_optional_capabilities: true
+  capability_activation_is_progressive: true
+  use_lowest_sufficient_ready_capability: true
+  never_copy_credential_values: true
+  executed_does_not_mean_verified: true
+  live_provider_state_outranks_cached_readiness: true
+
+readiness:
+  kind: capability_readiness
+  required_fields:
+    - capability
+    - state
+    - required_for_core
+    - prerequisites
+    - limitations
+    - activation
+    - authoritative_refs
+
+activation:
+  receipt_kind: capability_activation_receipt
+  statuses:
+    verified:
+      state_after: ready
+      successful_verification_required: true
+      missing_required_prerequisites_allowed: false
+    partial:
+      state_after: degraded
+      successful_degraded_verification_required: true
+      remaining_limitations_required: true
+    blocked:
+      state_after:
+        - blocked
+        - dormant
+      successful_verification_allowed: false
+
+optional_capability_behavior:
+  during_core_onboarding:
+    missing_optional_prerequisite_blocks_onboarding: false
+    report_current_state: true
+  when_user_requests_missing_capability:
+    explain_prerequisite: true
+    offer_activation: true
+    do_not_request_secret_value_when_safe_provider_route_exists: true
