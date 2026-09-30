@@ -1,16 +1,23 @@
 {
   "version": 1,
   "operations": {
-    "demo-increment": {
-      "trigger_prefix": "[demo-increment] ",
-      "syntax": "[demo-increment] <client>",
+    "demo-record": {
+      "trigger_prefix": "[demo-record] ",
+      "syntax": "[demo-record] <client>",
       "agent_routable": true,
       "credential_refs": [],
-      "execution_level": "L2",
-      "execution_surface": "github_issue",
+      "execution_level": "L1",
+      "execution_surface": "github_issue_comment",
+      "ledger_issue": 5,
+      "comment_format": [
+        "agent-hub-demo",
+        "operation: demo.record",
+        "client: <client>",
+        "policy: demo/control-plane.json"
+      ],
       "acceptance_proof": [
-        "request issue is closed by the workflow",
-        "default-branch demo/state.json records the issue number and client"
+        "issue #5 contains the new comment",
+        "the re-read comment matches the requested client and policy"
       ]
     }
   }
