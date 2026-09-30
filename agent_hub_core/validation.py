@@ -101,6 +101,29 @@ def validate_document(kind: str, document: dict[str, Any]) -> None:
                     "onboarding_receipt: verified onboarding requires successful fresh recovery"
                 )
 
+        if document["status"] == "partial":
+            if inventory["repositories_recorded"] != inventory["repositories_seen"]:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: partial onboarding must still record every discovered repository"
+                )
+            if not unresolved:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: partial onboarding requires at least one unresolved item"
+                )
+            for phase in ("discover", "classify", "build", "validate", "receipt"):
+                if phases[phase] != "completed":
+                    raise ProtocolValidationError(
+                        f"onboarding_receipt: partial onboarding requires {phase}=completed"
+                    )
+            if phases["watch"] not in {"completed", "skipped"}:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: partial onboarding requires watch completed or skipped"
+                )
+            if not recovery["performed"] or not recovery["passed"]:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: partial onboarding requires successful fresh recovery"
+                )
+
 
 def validate_file(kind: str, path: str | Path) -> None:
     source = Path(path)
