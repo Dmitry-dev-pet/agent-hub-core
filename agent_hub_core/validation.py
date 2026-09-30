@@ -18,6 +18,7 @@ SCHEMA_FILES = {
     "verification_result": "verification-result.schema.json",
     "lifecycle_transition": "lifecycle-transition.schema.json",
     "control_plane": "control-plane.schema.json",
+    "onboarding_receipt": "onboarding-receipt.schema.json",
 }
 
 
@@ -65,6 +66,40 @@ def validate_document(kind: str, document: dict[str, Any]) -> None:
                 "work_packet: allowed and forbidden overlap: "
                 + ", ".join(sorted(overlap))
             )
+
+    if kind == "onboarding_receipt":
+        unresolved = document["unresolved"]
+        inventory = document["inventory"]
+        phases = document["phases"]
+        recovery = document["fresh_recovery"]
+
+        if inventory["repositories_recorded"] > inventory["repositories_seen"]:
+            raise ProtocolValidationError(
+                "onboarding_receipt: repositories_recorded cannot exceed repositories_seen"
+            )
+
+        if document["status"] == "verified":
+            if inventory["repositories_recorded"] != inventory["repositories_seen"]:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: verified onboarding must record every discovered repository"
+                )
+            if unresolved:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: verified onboarding cannot contain unresolved items"
+                )
+            for phase in ("discover", "classify", "build", "validate", "receipt"):
+                if phases[phase] != "completed":
+                    raise ProtocolValidationError(
+                        f"onboarding_receipt: verified onboarding requires {phase}=completed"
+                    )
+            if phases["watch"] not in {"completed", "skipped"}:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: verified onboarding requires watch completed or skipped"
+                )
+            if not recovery["performed"] or not recovery["passed"]:
+                raise ProtocolValidationError(
+                    "onboarding_receipt: verified onboarding requires successful fresh recovery"
+                )
 
 
 def validate_file(kind: str, path: str | Path) -> None:
