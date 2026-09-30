@@ -49,6 +49,7 @@ activation:
       state_after:
         - blocked
         - dormant
+        - degraded
       successful_verification_allowed: false
 
 optional_capability_behavior:
