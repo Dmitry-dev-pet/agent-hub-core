@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- add progressive capability readiness states: ready / degraded / dormant / blocked;
+- add machine-readable `capabilities/contract.yaml`;
+- add executable `capability_readiness` and `capability_activation_receipt` schemas;
+- separate optional capability activation from core Hub onboarding;
+- add portable activation skill, examples, semantic validation and tests;
 - add brownfield-first onboarding protocol with DISCOVER → CLASSIFY → BUILD → VALIDATE → WATCH → RECEIPT phases;
 - add machine-readable `onboarding/contract.yaml` and portable bootstrap skill;
 - add executable `onboarding_receipt` schema with verified / partial / blocked semantics;
