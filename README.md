@@ -34,6 +34,25 @@ between execution venues, record execution, and verify the requested outcome.
 Escalation should be monotonic for one attempt: move upward only when the lower level
 cannot satisfy the outcome or its acceptance proof.
 
+## Live cross-vendor demo
+
+A tiny public demo under [`demo/`](demo/) proves the vendor-neutral interaction
+model without a special Agent Hub connector:
+
+```text
+ChatGPT or Grok
+  -> normal GitHub connection
+  -> same demo policy
+  -> same reviewed issue command
+  -> GitHub Actions
+  -> public state update
+  -> independent default-branch verification
+```
+
+The demo uses no custom secrets and no coding-agent runtime. A compliant chat must
+refuse the tempting direct file-write path and route the request through the published
+control-plane contract instead.
+
 ## Install
 
 From a checkout:
