@@ -105,3 +105,30 @@ correctness model.
 example repositories. It covers fresh resolution, hydration, L0-L5 level selection,
 live control-plane routing, operator-only rejection, handoff, execution receipts,
 verification, and fresh-session recovery.
+
+
+## 10. Onboarding receipt
+
+Onboarding is a distinct lifecycle that converts existing GitHub state into a
+portable Agent Hub instance:
+
+```text
+discover -> classify -> build -> validate -> watch -> receipt
+```
+
+The `onboarding_receipt` records completeness, unresolved ambiguity, secret-boundary
+compliance, fresh-session recovery, and authoritative references.
+
+A receipt may be:
+
+- `verified` only when every discovered repository is recorded, no unresolved items
+  remain, required phases completed, and fresh recovery passed;
+- `partial` when every discovered repository is still recorded and fresh recovery
+  passes, but explicit unresolved items remain;
+- `blocked` when trustworthy completeness, build, validation, or recovery cannot be
+  established.
+
+WATCH is optional and may be skipped. It is a reconciliation mechanism, not a source
+of truth.
+
+See `docs/onboarding-v0.1.md` for the full discovery and recovery contract.
