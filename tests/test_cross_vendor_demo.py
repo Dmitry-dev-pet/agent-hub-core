@@ -14,29 +14,25 @@ class CrossVendorDemoTests(unittest.TestCase):
             (ROOT / "demo" / "control-plane.json").read_text(encoding="utf-8")
         )
         self.assertEqual(payload["version"], 1)
-        self.assertEqual(set(payload["operations"]), {"demo-increment"})
-        operation = payload["operations"]["demo-increment"]
+        self.assertEqual(set(payload["operations"]), {"demo-record"})
+        operation = payload["operations"]["demo-record"]
         self.assertTrue(operation["agent_routable"])
-        self.assertEqual(operation["trigger_prefix"], "[demo-increment] ")
         self.assertEqual(operation["credential_refs"], [])
-        self.assertEqual(operation["execution_level"], "L2")
+        self.assertEqual(operation["execution_level"], "L1")
+        self.assertEqual(operation["execution_surface"], "github_issue_comment")
+        self.assertEqual(operation["ledger_issue"], 5)
 
-    def test_state_is_well_formed(self) -> None:
-        state = json.loads((ROOT / "demo" / "state.json").read_text(encoding="utf-8"))
-        self.assertEqual(state["version"], 1)
-        self.assertIsInstance(state["counter"], int)
-        self.assertGreaterEqual(state["counter"], 0)
-        self.assertIsInstance(state["history"], list)
+    def test_policy_requires_read_back_verification(self) -> None:
+        policy = (ROOT / "demo" / "AGENTS.md").read_text(encoding="utf-8")
+        self.assertIn("Re-read the comments on issue #5", policy)
+        self.assertIn("Executed is not verified", policy)
+        self.assertIn("Do not edit repository files", policy)
 
-    def test_workflow_references_public_state_and_owner_gate(self) -> None:
-        workflow = (
-            ROOT / ".github" / "workflows" / "cross-vendor-demo.yml"
-        ).read_text(encoding="utf-8")
-        self.assertIn(
-            "github.event.issue.user.login == github.repository_owner", workflow
-        )
-        self.assertIn("demo/state.json", workflow)
-        self.assertIn("git show origin/main:demo/state.json", workflow)
+    def test_public_readme_keeps_same_operation_for_both_hosts(self) -> None:
+        readme = (ROOT / "demo" / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Client: chatgpt.", readme)
+        self.assertIn("Client: grok.", readme)
+        self.assertIn("The operation and policy are identical", readme)
 
 
 if __name__ == "__main__":
