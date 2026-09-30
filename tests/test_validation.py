@@ -153,6 +153,16 @@ class ProtocolValidationTests(unittest.TestCase):
         receipt["prerequisites_checked"][0]["status"] = "missing"
         validate_document("capability_activation_receipt", receipt)
 
+    def test_blocked_activation_may_preserve_degraded_readiness(self):
+        receipt = self.load("capability-activation-receipt.json")
+        receipt["status"] = "blocked"
+        receipt["state_after"] = "degraded"
+        receipt["prerequisites_checked"][0]["status"] = "missing"
+        receipt["limitations_remaining"] = ["private repositories remain unavailable"]
+        receipt["verification"]["performed"] = False
+        receipt["verification"]["passed"] = False
+        validate_document("capability_activation_receipt", receipt)
+
     def test_machine_readable_capability_contract_matches_protocol(self):
         contract = yaml.safe_load(
             (ROOT / "capabilities" / "contract.yaml").read_text(encoding="utf-8")
