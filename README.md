@@ -162,7 +162,7 @@ The machine-readable `onboarding_receipt` has three outcomes:
 - `blocked` — trustworthy completeness/build/validation/recovery could not be
   established.
 
-See `docs/onboarding-v0.1.md` and `skills/bootstrap-instance/SKILL.md`.
+The single machine-readable entry point is `onboarding/contract.yaml`. See also `docs/onboarding-v0.1.md` and `skills/bootstrap-instance/SKILL.md`.
 
 ## Zero-custom-secret bootstrap
 
