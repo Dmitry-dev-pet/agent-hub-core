@@ -19,12 +19,12 @@ class CrossVendorDemoTests(unittest.TestCase):
         self.assertTrue(operation["agent_routable"])
         self.assertEqual(operation["credential_refs"], [])
         self.assertEqual(operation["execution_level"], "L1")
-        self.assertEqual(operation["execution_surface"], "github_issue_comment")
-        self.assertEqual(operation["ledger_issue"], 5)
+        self.assertEqual(operation["execution_surface"], "github_issue_create")
+        self.assertEqual(operation["index_issue"], 5)
 
     def test_policy_requires_read_back_verification(self) -> None:
         policy = (ROOT / "demo" / "AGENTS.md").read_text(encoding="utf-8")
-        self.assertIn("Re-read the comments on issue #5", policy)
+        self.assertIn("Re-read the newly created issue", policy)
         self.assertIn("Executed is not verified", policy)
         self.assertIn("Do not edit repository files", policy)
 
@@ -33,6 +33,7 @@ class CrossVendorDemoTests(unittest.TestCase):
         self.assertIn("Client: chatgpt.", readme)
         self.assertIn("Client: grok.", readme)
         self.assertIn("The operation and policy are identical", readme)
+        self.assertIn("[agent-hub-demo] <client>", readme)
 
 
 if __name__ == "__main__":
