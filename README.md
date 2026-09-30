@@ -43,15 +43,14 @@ model without a special Agent Hub connector:
 ChatGPT or Grok
   -> normal GitHub connection
   -> same demo policy
-  -> same reviewed issue command
-  -> GitHub Actions
-  -> public state update
-  -> independent default-branch verification
+  -> same public ledger issue
+  -> same comment mutation
+  -> read-back verification
 ```
 
-The demo uses no custom secrets and no coding-agent runtime. A compliant chat must
-refuse the tempting direct file-write path and route the request through the published
-control-plane contract instead.
+The demo uses no custom secrets, workflow runner, or coding-agent runtime. The
+published contract selects the lowest sufficient level: one direct GitHub comment
+mutation followed by read-back verification.
 
 ## Install
 
