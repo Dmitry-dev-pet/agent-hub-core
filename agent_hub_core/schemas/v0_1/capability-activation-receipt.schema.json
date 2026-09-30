@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-hub-core:v0.1:capability-activation-receipt",
+  "title": "Agent Hub CapabilityActivationReceipt v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "capability",
+    "status",
+    "state_before",
+    "state_after",
+    "requested_outcome",
+    "prerequisites_checked",
+    "actions",
+    "limitations_remaining",
+    "credential_values_copied",
+    "verification",
+    "authoritative_refs"
+  ],
+  "properties": {
+    "version": {"const": 1},
+    "capability": {"type": "string", "minLength": 1},
+    "status": {"enum": ["verified", "partial", "blocked"]},
+    "state_before": {"enum": ["ready", "degraded", "dormant", "blocked"]},
+    "state_after": {"enum": ["ready", "degraded", "dormant", "blocked"]},
+    "requested_outcome": {"type": "string", "minLength": 1},
+    "prerequisites_checked": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "required_for_ready",
+          "user_action_required"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["satisfied", "missing", "not_applicable"]},
+          "required_for_ready": {"type": "boolean"},
+          "user_action_required": {"type": "boolean"}
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "description", "result"],
+        "properties": {
+          "kind": {
+            "enum": [
+              "connector",
+              "reviewed_control_plane",
+              "workflow",
+              "manual",
+              "other"
+            ]
+          },
+          "description": {"type": "string", "minLength": 1},
+          "result": {"enum": ["executed", "skipped", "failed"]}
+        }
+      }
+    },
+    "limitations_remaining": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "credential_values_copied": {"const": false},
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed", "passed", "checks"],
+      "properties": {
+        "performed": {"type": "boolean"},
+        "passed": {"type": "boolean"},
+        "checks": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "authoritative_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": {
+              "enum": [
+                "repository", "file", "commit", "pull_request", "issue",
+                "workflow_run", "artifact", "deployment", "runtime", "url", "other"
+              ]
+            },
+            "value": {"type": "string", "minLength": 1}
+          }
+        }
+    }
+  }
+}
