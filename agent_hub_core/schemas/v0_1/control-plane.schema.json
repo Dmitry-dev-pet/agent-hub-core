@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-hub-core:v0.1:control-plane",
+  "title": "Agent Hub reviewed control-plane contract v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "operations"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "issue_prefix": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operations": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "agent_routable"
+        ],
+        "properties": {
+          "agent_routable": {
+            "type": "boolean"
+          },
+          "trigger": {
+            "type": "string",
+            "minLength": 1
+          },
+          "trigger_prefix": {
+            "type": "string",
+            "minLength": 1
+          },
+          "syntax": {
+            "type": "string",
+            "minLength": 1
+          },
+          "readme_example": {
+            "type": "string",
+            "minLength": 1
+          },
+          "credential_refs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "execution_level": {
+            "enum": [
+              "L0",
+              "L1",
+              "L2",
+              "L3",
+              "L4",
+              "L5"
+            ]
+          },
+          "legacy_operator_only": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "project_required": {
+            "type": "boolean"
+          },
+          "project": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_repo": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+          },
+          "execution_contract": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "trigger"
+            ]
+          },
+          {
+            "required": [
+              "trigger_prefix"
+            ]
+          },
+          {
+            "required": [
+              "syntax"
+            ]
+          }
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "agent_routable": {
+                  "const": false
+                }
+              },
+              "required": [
+                "agent_routable"
+              ]
+            },
+            "then": {
+              "required": [
+                "reason"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

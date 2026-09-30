@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "project": "demo-app",
+  "outcome": {
+    "description": "Publish the validated build artifact."
+  },
+  "acceptance_proof": {
+    "kind": "composite",
+    "checks": [
+      "workflow succeeds",
+      "artifact exists"
+    ]
+  },
+  "execution_envelope": {
+    "repositories": [
+      "example-org/demo-app"
+    ],
+    "allowed": [
+      "workflow_dispatch",
+      "artifact_read"
+    ],
+    "forbidden": [
+      "credential_change",
+      "unrelated_repository_change"
+    ]
+  },
+  "preferred_level": "L1",
+  "maximum_level": "L3"
+}

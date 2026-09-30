@@ -1,0 +1,9 @@
+version: 1
+inventory:
+  provider: github
+  owner: example-org
+
+projects: projects.yaml
+capabilities: capabilities.yaml
+credentials: credentials.yaml
+context_dir: context

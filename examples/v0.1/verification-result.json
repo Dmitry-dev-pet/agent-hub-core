@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "status": "verified",
+  "checks": [
+    {
+      "name": "workflow succeeds",
+      "passed": true,
+      "evidence": [
+        {
+          "type": "workflow_run",
+          "value": "example-run-123"
+        }
+      ]
+    },
+    {
+      "name": "artifact exists",
+      "passed": true,
+      "evidence": [
+        {
+          "type": "artifact",
+          "value": "example-artifact-456"
+        }
+      ]
+    }
+  ],
+  "authoritative_refs": [
+    {
+      "type": "workflow_run",
+      "value": "example-run-123"
+    },
+    {
+      "type": "artifact",
+      "value": "example-artifact-456"
+    }
+  ]
+}

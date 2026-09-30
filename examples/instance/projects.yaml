@@ -1,0 +1,10 @@
+version: 1
+
+routing:
+  - id: demo-app
+    repo: example-org/demo-app
+    family: demo
+    aliases:
+      - demo
+      - demo app
+    durable_context: required
