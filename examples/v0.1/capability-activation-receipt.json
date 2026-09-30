@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "capability": "github-native-watcher",
+  "status": "verified",
+  "state_before": "degraded",
+  "state_after": "ready",
+  "requested_outcome": "Scheduled discovery must cover all repositories visible to the reviewed GitHub App installation.",
+  "prerequisites_checked": [
+    {
+      "id": "read-only-github-app",
+      "status": "satisfied",
+      "required_for_ready": true,
+      "user_action_required": true
+    }
+  ],
+  "actions": [
+    {
+      "kind": "manual",
+      "description": "User installed the reviewed read-only GitHub App and kept its private key in the provider secret store.",
+      "result": "executed"
+    },
+    {
+      "kind": "workflow",
+      "description": "Ran scheduled-discovery logic using the GitHub App installation token.",
+      "result": "executed"
+    }
+  ],
+  "limitations_remaining": [],
+  "credential_values_copied": false,
+  "verification": {
+    "performed": true,
+    "passed": true,
+    "checks": [
+      "workflow auth mode is github-app-installation-token",
+      "scheduled discovery is complete",
+      "live repository count equals inventory repository count",
+      "inventory drift is false"
+    ]
+  },
+  "authoritative_refs": [
+    {
+      "type": "workflow_run",
+      "value": "example-org/agent-hub/actions/runs/456"
+    },
+    {
+      "type": "artifact",
+      "value": "agent-hub-inventory-discovery"
+    }
+  ]
+}

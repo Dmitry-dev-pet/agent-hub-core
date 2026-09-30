@@ -32,6 +32,8 @@ class ProtocolValidationTests(unittest.TestCase):
             "lifecycle-transition.json": "lifecycle_transition",
             "control-plane.json": "control_plane",
             "onboarding-receipt.json": "onboarding_receipt",
+            "capability-readiness.json": "capability_readiness",
+            "capability-activation-receipt.json": "capability_activation_receipt",
         }
         for filename, kind in mapping.items():
             with self.subTest(filename=filename):
@@ -116,6 +118,58 @@ class ProtocolValidationTests(unittest.TestCase):
         receipt["status"] = "partial"
         with self.assertRaises(ProtocolValidationError):
             validate_document("onboarding_receipt", receipt)
+
+    def test_ready_capability_rejects_missing_required_prerequisite(self):
+        readiness = self.load("capability-readiness.json")
+        readiness["state"] = "ready"
+        readiness["limitations"] = []
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("capability_readiness", readiness)
+
+    def test_degraded_capability_requires_limitation(self):
+        readiness = self.load("capability-readiness.json")
+        readiness["limitations"] = []
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("capability_readiness", readiness)
+
+    def test_verified_activation_must_end_ready(self):
+        receipt = self.load("capability-activation-receipt.json")
+        receipt["state_after"] = "degraded"
+        receipt["limitations_remaining"] = ["still limited"]
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("capability_activation_receipt", receipt)
+
+    def test_verified_activation_rejects_failed_action(self):
+        receipt = self.load("capability-activation-receipt.json")
+        receipt["actions"][0]["result"] = "failed"
+        with self.assertRaises(ProtocolValidationError):
+            validate_document("capability_activation_receipt", receipt)
+
+    def test_partial_activation_requires_degraded_mode_and_limitation(self):
+        receipt = self.load("capability-activation-receipt.json")
+        receipt["status"] = "partial"
+        receipt["state_after"] = "degraded"
+        receipt["limitations_remaining"] = ["private repositories are not covered"]
+        receipt["prerequisites_checked"][0]["status"] = "missing"
+        validate_document("capability_activation_receipt", receipt)
+
+    def test_machine_readable_capability_contract_matches_protocol(self):
+        contract = yaml.safe_load(
+            (ROOT / "capabilities" / "contract.yaml").read_text(encoding="utf-8")
+        )
+        self.assertEqual(contract["version"], 1)
+        self.assertEqual(
+            set(contract["states"]),
+            {"ready", "degraded", "dormant", "blocked"},
+        )
+        self.assertTrue(
+            contract["principles"]["core_onboarding_must_not_require_optional_capabilities"]
+        )
+        self.assertTrue(contract["principles"]["never_copy_credential_values"])
+        self.assertEqual(
+            contract["activation"]["receipt_kind"],
+            "capability_activation_receipt",
+        )
 
     def test_machine_readable_onboarding_contract_matches_protocol(self):
         contract = yaml.safe_load(

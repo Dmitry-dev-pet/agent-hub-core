@@ -132,3 +132,35 @@ WATCH is optional and may be skipped. It is a reconciliation mechanism, not a so
 of truth.
 
 See `docs/onboarding-v0.1.md` for the full discovery and recovery contract.
+
+
+## 11. Capability readiness and activation
+
+Core Hub onboarding does not imply that every optional capability is enabled.
+
+A capability has one readiness state:
+
+- `ready` — fully usable;
+- `degraded` — usable with explicit limitations;
+- `dormant` — known and activatable but not enabled;
+- `blocked` — requested activation cannot currently proceed or verify.
+
+A missing prerequisite on an optional capability must not invalidate a verified core
+onboarding receipt.
+
+`capability_readiness` snapshots record prerequisites, limitations, activation route,
+and authoritative evidence.
+
+`capability_activation_receipt` records a concrete activation attempt. A receipt is:
+
+- `verified` only when the capability ends `ready`, all required prerequisites are
+  satisfied, no activation action failed, no limitations remain, and verification
+  passed;
+- `partial` only when the capability ends `degraded`, degraded behavior was
+  independently verified, and remaining limitations are explicit;
+- `blocked` when activation ends `blocked` or remains `dormant`.
+
+Credential values remain outside both documents.
+
+See `capabilities/contract.yaml` and
+`docs/capability-activation-v0.1.md`.

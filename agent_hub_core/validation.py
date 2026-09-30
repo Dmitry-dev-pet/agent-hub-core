@@ -19,6 +19,8 @@ SCHEMA_FILES = {
     "lifecycle_transition": "lifecycle-transition.schema.json",
     "control_plane": "control-plane.schema.json",
     "onboarding_receipt": "onboarding-receipt.schema.json",
+    "capability_readiness": "capability-readiness.schema.json",
+    "capability_activation_receipt": "capability-activation-receipt.schema.json",
 }
 
 
@@ -122,6 +124,115 @@ def validate_document(kind: str, document: dict[str, Any]) -> None:
             if not recovery["performed"] or not recovery["passed"]:
                 raise ProtocolValidationError(
                     "onboarding_receipt: partial onboarding requires successful fresh recovery"
+                )
+
+
+    if kind == "capability_readiness":
+        state = document["state"]
+        prerequisites = document["prerequisites"]
+        limitations = document["limitations"]
+        activation = document["activation"]
+        missing_required = [
+            item
+            for item in prerequisites
+            if item["required_for_ready"] and item["status"] == "missing"
+        ]
+
+        if state == "ready":
+            if missing_required:
+                raise ProtocolValidationError(
+                    "capability_readiness: ready capability cannot have missing required prerequisites"
+                )
+            if limitations:
+                raise ProtocolValidationError(
+                    "capability_readiness: ready capability cannot have limitations"
+                )
+
+        if state == "degraded":
+            if not missing_required:
+                raise ProtocolValidationError(
+                    "capability_readiness: degraded capability requires a missing prerequisite required_for_ready"
+                )
+            if not limitations:
+                raise ProtocolValidationError(
+                    "capability_readiness: degraded capability requires at least one limitation"
+                )
+
+        if state == "dormant":
+            if not activation["available"]:
+                raise ProtocolValidationError(
+                    "capability_readiness: dormant capability must have an available activation route"
+                )
+            if not missing_required:
+                raise ProtocolValidationError(
+                    "capability_readiness: dormant capability requires a missing prerequisite required_for_ready"
+                )
+
+        if state == "blocked":
+            if not missing_required and activation["available"]:
+                raise ProtocolValidationError(
+                    "capability_readiness: blocked capability requires a missing prerequisite or unavailable activation route"
+                )
+
+    if kind == "capability_activation_receipt":
+        status = document["status"]
+        after = document["state_after"]
+        prerequisites = document["prerequisites_checked"]
+        actions = document["actions"]
+        limitations = document["limitations_remaining"]
+        verification = document["verification"]
+
+        missing_required = [
+            item
+            for item in prerequisites
+            if item["required_for_ready"] and item["status"] == "missing"
+        ]
+        failed_actions = [item for item in actions if item["result"] == "failed"]
+
+        if status == "verified":
+            if after != "ready":
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: verified activation must end in ready"
+                )
+            if missing_required:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: verified activation cannot have missing required prerequisites"
+                )
+            if failed_actions:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: verified activation cannot contain failed actions"
+                )
+            if limitations:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: verified activation cannot have remaining limitations"
+                )
+            if not verification["performed"] or not verification["passed"]:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: verified activation requires successful verification"
+                )
+
+        if status == "partial":
+            if after != "degraded":
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: partial activation must end in degraded"
+                )
+            if not limitations:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: partial activation requires remaining limitations"
+                )
+            if not verification["performed"] or not verification["passed"]:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: partial activation requires successful verification of degraded mode"
+                )
+
+        if status == "blocked":
+            if after not in {"blocked", "dormant"}:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: blocked activation must end in blocked or dormant"
+                )
+            if verification["passed"]:
+                raise ProtocolValidationError(
+                    "capability_activation_receipt: blocked activation cannot claim passed verification"
                 )
 
 
