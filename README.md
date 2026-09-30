@@ -117,6 +117,8 @@ v0.1 includes executable JSON Schemas for:
 - lifecycle transitions
 - reviewed control-plane contracts
 - onboarding receipts
+- capability readiness snapshots
+- capability activation receipts
 
 See `docs/protocol-v0.1.md` and `examples/v0.1/`.
 
@@ -163,6 +165,31 @@ The machine-readable `onboarding_receipt` has three outcomes:
   established.
 
 The single machine-readable entry point is `onboarding/contract.yaml`. See also `docs/onboarding-v0.1.md` and `skills/bootstrap-instance/SKILL.md`.
+
+## Progressive capability activation
+
+Core onboarding and optional capability activation are separate lifecycles.
+
+A Hub can be fully verified while optional capabilities are:
+
+```text
+ready     — fully usable
+degraded  — usable with explicit limitations
+dormant   — known and activatable, but not enabled
+blocked   — requested activation cannot currently proceed or verify
+```
+
+The machine-readable entry point is `capabilities/contract.yaml`.
+
+When a requested outcome needs a non-ready capability, the client should identify the
+narrow prerequisites, complete every safe non-interactive step, stop exactly at any
+provider-required human action, then verify the real capability before emitting a
+`capability_activation_receipt`.
+
+Missing optional capabilities do not invalidate a verified Hub onboarding.
+
+See `docs/capability-activation-v0.1.md` and
+`skills/activate-capability/SKILL.md`.
 
 ## Zero-custom-secret bootstrap
 
