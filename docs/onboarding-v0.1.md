@@ -3,6 +3,9 @@
 The onboarding protocol turns an existing GitHub account into a portable Agent Hub
 instance without requiring the user to manually inventory repositories or write YAML.
 
+The canonical machine-readable entry point is `onboarding/contract.yaml`. AI clients
+may use `skills/bootstrap-instance/SKILL.md` as the portable execution guidance.
+
 The primary path is **brownfield onboarding**: discover what already exists, normalize
 it into an Agent Hub instance, validate it, and prove that a fresh AI session can
 recover the same operational model from GitHub.
