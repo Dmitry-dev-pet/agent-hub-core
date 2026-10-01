@@ -155,6 +155,34 @@
           "execution_repository": {
             "type": "string",
             "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+          },
+          "admission": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode",
+              "requester"
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "automatic",
+                  "manual_approval",
+                  "provider_interaction",
+                  "operator_only"
+                ]
+              },
+              "requester": {
+                "enum": [
+                  "repository_owner",
+                  "any_authenticated"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "anyOf": [

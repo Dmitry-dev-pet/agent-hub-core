@@ -116,6 +116,23 @@ operator-only operation, or removing an explicit human gate). Other authority
 expansions require review. CI can enforce only `BLOCK` with
 `--fail-on block`, or require a clean `PASS` with `--fail-on review`.
 
+Evaluate runtime admission before an operation reaches credential-bearing or
+consequential execution:
+
+```bash
+truthrail admit-operation control-plane.json \
+  --operation deploy \
+  --actor example-owner \
+  --owner example-owner \
+  --route agent \
+  --require-admit
+```
+
+Runtime admission emits `ADMIT`, `REQUIRE_HUMAN`, or `DENY` from the live
+reviewed operation contract. It verifies requester policy and agent routability, fails
+closed when admission metadata is absent, and records deterministic contract/operation
+SHA-256 digests. Provider interaction and post-execution review remain separate gates.
+
 ## Python API
 
 ```python
@@ -178,6 +195,11 @@ declared fields; it does not infer privilege from descriptions or ask an LLM to 
 a diff. Expansions such as `read -> write`, a new credential reference, a new
 external side effect, a higher same-unit cost ceiling, or removal of a human gate are
 reported deterministically.
+
+Runtime admission is declared separately with an `admission` object containing a
+`mode` (`automatic`, `manual_approval`, `provider_interaction`, or
+`operator_only`) and requester policy. This is intentionally separate from
+`human_gate`, which may describe a later review boundary.
 
 The machine-readable default policy is `capabilities/policy-v1.yaml`. Policy
 evaluation is deterministic and uses only the capability diff; no LLM judgment or

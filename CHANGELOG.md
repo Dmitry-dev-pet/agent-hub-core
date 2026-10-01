@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- add runtime operation admission v1 with ADMIT / REQUIRE_HUMAN / DENY decisions;
+- add explicit per-operation admission mode/requester metadata and fail-closed semantics;
+- add machine-readable `capabilities/admission-v1.yaml`, decision schema, CLI and tests;
+
 - add deterministic capability policy v1 with PASS / REVIEW / BLOCK decisions;
 - publish machine-readable `capabilities/policy-v1.yaml`;
 - add `truthrail capability-policy` with optional CI enforcement thresholds;

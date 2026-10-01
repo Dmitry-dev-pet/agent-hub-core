@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from .admission import evaluate_operation_admission, format_operation_admission_markdown
 from .capability_diff import diff_control_planes, format_capability_diff_markdown
 from .capability_policy import evaluate_control_plane_policy, format_capability_policy_markdown
 from .conformance import run_scenario
@@ -110,6 +111,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional CI enforcement threshold.",
     )
 
+    admission = sub.add_parser(
+        "admit-operation",
+        help="Evaluate runtime admission for one reviewed control-plane operation.",
+    )
+    admission.add_argument("contract", type=Path)
+    admission.add_argument("--operation", required=True)
+    admission.add_argument("--actor", required=True)
+    admission.add_argument("--owner", required=True)
+    admission.add_argument(
+        "--route",
+        choices=("agent", "operator"),
+        default="agent",
+    )
+    admission.add_argument(
+        "--format",
+        choices=("markdown", "json"),
+        default="markdown",
+    )
+    admission.add_argument(
+        "--require-admit",
+        action="store_true",
+        help="Exit non-zero unless the admission decision is ADMIT.",
+    )
+
     sub.add_parser("list-kinds", help="List supported protocol document kinds.")
     return parser
 
@@ -184,6 +209,29 @@ def main(argv: Sequence[str] | None = None) -> int:
                 return 2
             if args.fail_on == "review" and decision["decision"] in {"REVIEW", "BLOCK"}:
                 return 3
+            return 0
+        if args.command == "admit-operation":
+            contract = json.loads(args.contract.read_text(encoding="utf-8"))
+            if not isinstance(contract, dict):
+                raise ProtocolValidationError(
+                    "admit-operation contract must be a JSON object"
+                )
+            decision = evaluate_operation_admission(
+                contract,
+                args.operation,
+                actor=args.actor,
+                owner=args.owner,
+                route=args.route,
+            )
+            if args.format == "json":
+                _print_json(decision)
+            else:
+                print(format_operation_admission_markdown(decision))
+            if args.require_admit:
+                if decision["decision"] == "DENY":
+                    return 2
+                if decision["decision"] == "REQUIRE_HUMAN":
+                    return 3
             return 0
         if args.command == "list-kinds":
             for kind in sorted(SCHEMA_FILES):

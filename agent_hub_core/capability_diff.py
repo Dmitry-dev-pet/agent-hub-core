@@ -17,6 +17,7 @@ _SCALAR_FIELDS = (
     "execution_venue",
     "execution_repository",
     "execution_contract",
+    "admission",
 )
 
 

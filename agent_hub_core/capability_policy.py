@@ -21,6 +21,7 @@ _REVIEW_CHANGED_FIELDS = {
     "external_side_effects",
     "cost_ceiling",
     "human_gate",
+    "admission",
 }
 
 

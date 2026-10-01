@@ -149,6 +149,51 @@ The policy is a review/admission policy, not an executor. It never grants a capa
 reads a credential value, or executes either contract. CI may use `--fail-on block`
 to reject only BLOCK findings, or `--fail-on review` to require PASS.
 
+### 6.3 Runtime operation admission
+
+Capability-diff policy protects changes to the operation contract. Runtime admission
+protects each concrete invocation.
+
+A reviewed operation may declare:
+
+```json
+{
+  "admission": {
+    "mode": "automatic",
+    "requester": "repository_owner"
+  }
+}
+```
+
+Admission modes are:
+
+- `automatic` — admit when the requester/route checks pass;
+- `manual_approval` — return `REQUIRE_HUMAN` and stop before execution;
+- `provider_interaction` — admit the bounded bootstrap stage while preserving the
+  reviewed provider interaction as a mandatory remaining requirement;
+- `operator_only` — deny agent-routed execution and admit only a trusted operator
+  route.
+
+`truthrail admit-operation` validates the live control-plane contract, checks the
+named operation, requester policy, route, and `agent_routable`, then emits an
+`operation_admission_decision` with deterministic contract and operation SHA-256
+digests.
+
+The decision is one of:
+
+- `ADMIT`;
+- `REQUIRE_HUMAN`;
+- `DENY`.
+
+Missing admission metadata fails closed. Runtime admission never reads credential
+values and never executes the target operation. It should run before credential-bearing
+steps or before allocating a privileged/machine-bound execution job.
+
+`human_gate` is not treated as synonymous with admission: for example, a render may
+be automatically admitted but still require human visual review after execution.
+
+The machine-readable policy is `capabilities/admission-v1.yaml`.
+
 ## 7. Credential boundary
 
 Credential routes may contain metadata such as:
