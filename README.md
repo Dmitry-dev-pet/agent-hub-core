@@ -94,6 +94,16 @@ Run the deterministic v0.1 conformance scenario:
 truthrail conformance
 ```
 
+Compare the explicit authority surface of two reviewed control-plane contracts:
+
+```bash
+truthrail capability-diff before-control-plane.json after-control-plane.json
+```
+
+Use `--format json` for machine-readable output. CI may opt into
+`--fail-on-expansion`; the default command is advisory and never executes either
+contract.
+
 ## Python API
 
 ```python
@@ -146,6 +156,15 @@ execution_levels: [L2]
 An operation is available to an AI router only when the owning contract explicitly
 sets `agent_routable: true`. Operator-only or legacy operations can remain present
 without becoming AI-accessible.
+
+A control-plane operation may also explicitly describe its authority surface:
+`credential_refs`, `execution_level`, `runtime_auth`, `execution_venue`,
+`github_permissions`, `network_destinations`, `external_side_effects`,
+`cost_ceiling`, and `human_gate`. Truthrail's capability diff compares only these
+declared fields; it does not infer privilege from descriptions or ask an LLM to judge
+a diff. Expansions such as `read -> write`, a new credential reference, a new
+external side effect, a higher same-unit cost ceiling, or removal of a human gate are
+reported deterministically.
 
 ## Brownfield onboarding
 

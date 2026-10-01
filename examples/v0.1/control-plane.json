@@ -7,7 +7,23 @@
       "syntax": "[create-repo] <repository-name>",
       "credential_refs": [
         "EXAMPLE_ADMIN_CREDENTIAL"
-      ]
+      ],
+      "runtime_auth": "github_app_user_access_token",
+      "execution_venue": "reviewed_control_plane",
+      "github_permissions": {
+        "contents": "write"
+      },
+      "network_destinations": [
+        "api.github.com"
+      ],
+      "external_side_effects": [
+        "github.repository.create"
+      ],
+      "cost_ceiling": {
+        "amount": 0,
+        "unit": "usd"
+      },
+      "human_gate": "approval"
     },
     "credential-export": {
       "agent_routable": false,

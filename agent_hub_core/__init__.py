@@ -2,6 +2,7 @@
 
 __version__ = "0.1.1"
 
+from .capability_diff import diff_control_planes, format_capability_diff_markdown
 from .conformance import run_scenario
 from .instance import (
     InstanceValidationError,
@@ -26,7 +27,9 @@ __all__ = [
     "RoutingError",
     "bootstrap_acceptance",
     "check_schemas",
+    "diff_control_planes",
     "doctor_instance",
+    "format_capability_diff_markdown",
     "init_instance",
     "run_scenario",
     "validate_document",
