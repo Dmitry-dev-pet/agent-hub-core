@@ -20,7 +20,7 @@ Privileged operations come from live reviewed contracts.
 Executed does not mean verified.
 ```
 
-Agent Hub Core is deliberately not a universal privileged agent runtime. It defines
+Truthrail Core is deliberately not a universal privileged agent runtime. It defines
 how to resolve a project, hydrate current evidence, plan an execution route, hand work
 between execution venues, record execution, and verify the requested outcome.
 
