@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from .capability_diff import diff_control_planes, format_capability_diff_markdown
 from .conformance import run_scenario
 from .instance import (
     InstanceValidationError,
@@ -14,7 +15,7 @@ from .instance import (
     init_instance,
     validate_instance,
 )
-from .validation import SCHEMA_FILES, check_schemas, validate_file
+from .validation import ProtocolValidationError, SCHEMA_FILES, check_schemas, validate_file
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -73,6 +74,23 @@ def build_parser() -> argparse.ArgumentParser:
         "bootstrap-acceptance",
         help="Prove a second instance starts with zero custom secrets.",
     )
+    capability_diff = sub.add_parser(
+        "capability-diff",
+        help="Compare two reviewed control-plane contracts without executing them.",
+    )
+    capability_diff.add_argument("before", type=Path)
+    capability_diff.add_argument("after", type=Path)
+    capability_diff.add_argument(
+        "--format",
+        choices=("markdown", "json"),
+        default="markdown",
+    )
+    capability_diff.add_argument(
+        "--fail-on-expansion",
+        action="store_true",
+        help="Exit with status 2 when explicit authority expands.",
+    )
+
     sub.add_parser("list-kinds", help="List supported protocol document kinds.")
     return parser
 
@@ -116,11 +134,26 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "bootstrap-acceptance":
             _print_json(bootstrap_acceptance())
             return 0
+        if args.command == "capability-diff":
+            before = json.loads(args.before.read_text(encoding="utf-8"))
+            after = json.loads(args.after.read_text(encoding="utf-8"))
+            if not isinstance(before, dict) or not isinstance(after, dict):
+                raise ProtocolValidationError(
+                    "capability-diff inputs must both be JSON objects"
+                )
+            report = diff_control_planes(before, after)
+            if args.format == "json":
+                _print_json(report)
+            else:
+                print(format_capability_diff_markdown(report))
+            if args.fail_on_expansion and report["summary"]["expansions"]:
+                return 2
+            return 0
         if args.command == "list-kinds":
             for kind in sorted(SCHEMA_FILES):
                 print(kind)
             return 0
-    except InstanceValidationError as exc:
+    except (InstanceValidationError, ProtocolValidationError, json.JSONDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     raise AssertionError(args.command)
