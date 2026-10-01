@@ -21,6 +21,7 @@ SCHEMA_FILES = {
     "onboarding_receipt": "onboarding-receipt.schema.json",
     "capability_readiness": "capability-readiness.schema.json",
     "capability_activation_receipt": "capability-activation-receipt.schema.json",
+    "capability_policy_decision": "capability-policy-decision.schema.json",
 }
 
 
