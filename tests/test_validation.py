@@ -34,6 +34,7 @@ class ProtocolValidationTests(unittest.TestCase):
             "onboarding-receipt.json": "onboarding_receipt",
             "capability-readiness.json": "capability_readiness",
             "capability-activation-receipt.json": "capability_activation_receipt",
+            "capability-policy-decision.json": "capability_policy_decision",
         }
         for filename, kind in mapping.items():
             with self.subTest(filename=filename):
