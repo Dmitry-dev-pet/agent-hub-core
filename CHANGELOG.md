@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- add deterministic capability policy v1 with PASS / REVIEW / BLOCK decisions;
+- publish machine-readable `capabilities/policy-v1.yaml`;
+- add `truthrail capability-policy` with optional CI enforcement thresholds;
+
 - add deterministic reviewed-control-plane capability diffs with Markdown/JSON output;
 - add explicit operation metadata for GitHub permissions, network destinations, external side effects, cost ceilings, human gates, runtime auth and execution venues;
 - add optional `--fail-on-expansion` CI policy without making blocking the protocol default;

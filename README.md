@@ -104,6 +104,18 @@ Use `--format json` for machine-readable output. CI may opt into
 `--fail-on-expansion`; the default command is advisory and never executes either
 contract.
 
+Evaluate the portable default policy:
+
+```bash
+truthrail capability-policy before-control-plane.json after-control-plane.json
+```
+
+The default v1 policy emits `PASS`, `REVIEW`, or `BLOCK`. It blocks only narrow
+boundary removals (new AI-routable operations, enabling agent routing on an existing
+operator-only operation, or removing an explicit human gate). Other authority
+expansions require review. CI can enforce only `BLOCK` with
+`--fail-on block`, or require a clean `PASS` with `--fail-on review`.
+
 ## Python API
 
 ```python
@@ -135,6 +147,7 @@ v0.1 includes executable JSON Schemas for:
 - onboarding receipts
 - capability readiness snapshots
 - capability activation receipts
+- capability policy decisions
 
 See `docs/protocol-v0.1.md` and `examples/v0.1/`.
 
@@ -165,6 +178,10 @@ declared fields; it does not infer privilege from descriptions or ask an LLM to 
 a diff. Expansions such as `read -> write`, a new credential reference, a new
 external side effect, a higher same-unit cost ceiling, or removal of a human gate are
 reported deterministically.
+
+The machine-readable default policy is `capabilities/policy-v1.yaml`. Policy
+evaluation is deterministic and uses only the capability diff; no LLM judgment or
+secret values participate.
 
 ## Brownfield onboarding
 

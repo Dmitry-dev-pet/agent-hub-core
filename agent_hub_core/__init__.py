@@ -3,6 +3,7 @@
 __version__ = "0.1.1"
 
 from .capability_diff import diff_control_planes, format_capability_diff_markdown
+from .capability_policy import evaluate_capability_policy, evaluate_control_plane_policy, format_capability_policy_markdown
 from .conformance import run_scenario
 from .instance import (
     InstanceValidationError,
@@ -29,6 +30,9 @@ __all__ = [
     "check_schemas",
     "diff_control_planes",
     "doctor_instance",
+    "evaluate_capability_policy",
+    "evaluate_control_plane_policy",
+    "format_capability_policy_markdown",
     "format_capability_diff_markdown",
     "init_instance",
     "run_scenario",

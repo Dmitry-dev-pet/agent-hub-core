@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "kind": "capability_policy_decision",
+  "policy": "truthrail-default-v1",
+  "decision": "REVIEW",
+  "summary": {
+    "block_findings": 0,
+    "review_findings": 1,
+    "operations_changed": 1
+  },
+  "findings": [
+    {
+      "operation": "deploy",
+      "field": "github_permissions.contents",
+      "decision": "REVIEW",
+      "rule_id": "TRP100",
+      "reason": "Explicit operation authority expands and requires human review.",
+      "before": "read",
+      "after": "write"
+    }
+  ]
+}
