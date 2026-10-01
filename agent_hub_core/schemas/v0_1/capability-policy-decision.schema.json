@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-hub-core:v0.1:capability-policy-decision",
+  "title": "Truthrail capability policy decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "kind",
+    "policy",
+    "decision",
+    "summary",
+    "findings"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "capability_policy_decision"
+    },
+    "policy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "enum": ["PASS", "REVIEW", "BLOCK"]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_findings",
+        "review_findings",
+        "operations_changed"
+      ],
+      "properties": {
+        "block_findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "review_findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "operations_changed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation",
+          "field",
+          "decision",
+          "rule_id",
+          "reason",
+          "before",
+          "after"
+        ],
+        "properties": {
+          "operation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision": {
+            "enum": ["REVIEW", "BLOCK"]
+          },
+          "rule_id": {
+            "type": "string",
+            "pattern": "^TRP[0-9]{3}$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "before": {},
+          "after": {}
+        }
+      }
+    }
+  }
+}
