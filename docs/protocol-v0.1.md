@@ -82,6 +82,38 @@ operation unless the value is exactly `true`. An operation with
 This allows operator-only workflows to coexist with AI-routable operations without
 silently expanding agent privilege.
 
+### 6.1 Capability authority diff
+
+Reviewed operations may declare an explicit authority surface using:
+
+- `credential_refs`;
+- `execution_level`;
+- `runtime_auth`;
+- `execution_venue`;
+- `github_permissions` with `none | read | write` per scope;
+- `network_destinations`;
+- `external_side_effects`;
+- `cost_ceiling` as an amount plus unit;
+- `human_gate` as `none | review | approval | provider_interaction`.
+
+`truthrail capability-diff BEFORE AFTER` validates both contracts and compares only
+those explicit fields. It must not derive authority from prose descriptions, trigger
+names, shell commands, or model judgment.
+
+Deterministic expansions include:
+
+- `agent_routable: false -> true`;
+- a higher execution level;
+- a new credential, network destination, or external side effect;
+- a GitHub permission moving toward `write`;
+- a higher cost ceiling when both sides use the same unit;
+- removal of an explicit human gate.
+
+Changes whose security direction cannot be proven from the contract, such as switching
+execution venue or changing cost units, are reported as `changed`, not guessed as
+safe or dangerous. Policy owners may treat an expansion as advisory, require review,
+or fail CI with `--fail-on-expansion`.
+
 ## 7. Credential boundary
 
 Credential routes may contain metadata such as:
