@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .capability_diff import diff_control_planes, format_capability_diff_markdown
+from .capability_policy import evaluate_control_plane_policy, format_capability_policy_markdown
 from .conformance import run_scenario
 from .instance import (
     InstanceValidationError,
@@ -91,6 +92,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Exit with status 2 when explicit authority expands.",
     )
 
+    capability_policy = sub.add_parser(
+        "capability-policy",
+        help="Evaluate the default v1 policy for a reviewed control-plane change.",
+    )
+    capability_policy.add_argument("before", type=Path)
+    capability_policy.add_argument("after", type=Path)
+    capability_policy.add_argument(
+        "--format",
+        choices=("markdown", "json"),
+        default="markdown",
+    )
+    capability_policy.add_argument(
+        "--fail-on",
+        choices=("none", "block", "review"),
+        default="none",
+        help="Optional CI enforcement threshold.",
+    )
+
     sub.add_parser("list-kinds", help="List supported protocol document kinds.")
     return parser
 
@@ -148,6 +167,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 print(format_capability_diff_markdown(report))
             if args.fail_on_expansion and report["summary"]["expansions"]:
                 return 2
+            return 0
+        if args.command == "capability-policy":
+            before = json.loads(args.before.read_text(encoding="utf-8"))
+            after = json.loads(args.after.read_text(encoding="utf-8"))
+            if not isinstance(before, dict) or not isinstance(after, dict):
+                raise ProtocolValidationError(
+                    "capability-policy inputs must both be JSON objects"
+                )
+            decision = evaluate_control_plane_policy(before, after)
+            if args.format == "json":
+                _print_json(decision)
+            else:
+                print(format_capability_policy_markdown(decision))
+            if args.fail_on == "block" and decision["decision"] == "BLOCK":
+                return 2
+            if args.fail_on == "review" and decision["decision"] in {"REVIEW", "BLOCK"}:
+                return 3
             return 0
         if args.command == "list-kinds":
             for kind in sorted(SCHEMA_FILES):
