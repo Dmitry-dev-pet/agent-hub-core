@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- adopt **Truthrail** as the product name with the tagline `One source of truth. Any AI.`;
+- add the preferred `truthrail` CLI while retaining `agent-hub-core` for v0.1 compatibility;
+- keep legacy Python package, on-disk paths, and schema identifiers stable during the rename;
+
 - add progressive capability readiness states: ready / degraded / dormant / blocked;
 - add machine-readable `capabilities/contract.yaml`;
 - add executable `capability_readiness` and `capability_activation_receipt` schemas;
