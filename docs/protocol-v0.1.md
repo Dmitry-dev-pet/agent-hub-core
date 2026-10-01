@@ -1,4 +1,6 @@
-# Agent Hub Core protocol v0.1
+# Truthrail Core protocol v0.1
+
+> Compatibility note: v0.1 schema IDs and package identifiers retain the historical `agent-hub-core` namespace.
 
 ## 1. Source precedence
 

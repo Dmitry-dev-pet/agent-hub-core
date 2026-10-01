@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agent-hub-core"
 version = "0.1.1"
-description = "Portable GitHub-native protocol and reference implementation for AI work routing."
+description = "Truthrail: portable GitHub-native protocol and reference implementation for AI work continuity and routing."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Agent Hub Core contributors" }]
+authors = [{ name = "Truthrail Core contributors" }]
 dependencies = [
   "jsonschema>=4.23,<5",
   "PyYAML>=6.0,<7",
@@ -29,6 +29,7 @@ dev = [
 ]
 
 [project.scripts]
+truthrail = "agent_hub_core.cli:main"
 agent-hub-core = "agent_hub_core.cli:main"
 
 [tool.setuptools.packages.find]

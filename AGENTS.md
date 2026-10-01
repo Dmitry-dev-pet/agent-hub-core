@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository is the portable, user-agnostic Agent Hub Core reference implementation.
+This repository is the portable, user-agnostic Truthrail Core reference implementation.
 
 ## Change rules
 
@@ -29,4 +29,6 @@ This repository is the portable, user-agnostic Agent Hub Core reference implemen
 ## Compatibility
 
 v0.1 schema changes must remain backward compatible unless the package version and
-protocol version are intentionally advanced together.
+protocol version are intentionally advanced together. During the Truthrail rename, keep
+legacy technical identifiers such as `agent-hub-core`, `agent_hub_core`, `.agent-hub/`,
+and existing schema IDs working unless a separately versioned migration removes them.

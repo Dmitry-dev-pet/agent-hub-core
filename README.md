@@ -1,6 +1,10 @@
-# Agent Hub Core
+# Truthrail Core
 
-Agent Hub Core is a portable, GitHub-native protocol and reference implementation
+**One source of truth. Any AI.**
+
+> Formerly **Agent Hub Core**. The v0.1 technical identifiers (`agent-hub-core`, `agent_hub_core`, `.agent-hub/`, and existing schema IDs) remain supported during the rename.
+
+Truthrail Core is a portable, GitHub-native protocol and reference implementation
 for routing AI-assisted work across repositories, APIs, reviewed control planes,
 ephemeral runtimes, coding agents, and machine-bound executors.
 
@@ -37,7 +41,7 @@ cannot satisfy the outcome or its acceptance proof.
 ## Live cross-vendor demo
 
 A tiny public demo under [`demo/`](demo/) proves the vendor-neutral interaction
-model without a special Agent Hub connector:
+model without a special Truthrail connector:
 
 ```text
 ChatGPT or Grok
@@ -68,10 +72,12 @@ python -m pip install -e ".[dev]"
 
 ## CLI
 
+`truthrail` is the preferred CLI name. The legacy `agent-hub-core` command remains an alias for v0.1 compatibility.
+
 Validate a WorkPacket:
 
 ```bash
-agent-hub-core validate \
+truthrail validate \
   --kind work_packet \
   examples/v0.1/work-packet.json
 ```
@@ -79,13 +85,13 @@ agent-hub-core validate \
 Check every bundled schema:
 
 ```bash
-agent-hub-core check-schemas
+truthrail check-schemas
 ```
 
 Run the deterministic v0.1 conformance scenario:
 
 ```bash
-agent-hub-core conformance
+truthrail conformance
 ```
 
 ## Python API
@@ -155,7 +161,7 @@ DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT
 
 A client should discover the complete visible repository set, preserve every
 repository, normalize only high-confidence project relationships, record ambiguities
-instead of guessing, build/validate the Hub, and then prove fresh-session recovery.
+instead of guessing, build/validate the Truthrail instance, and then prove fresh-session recovery.
 
 The machine-readable `onboarding_receipt` has three outcomes:
 
@@ -170,7 +176,7 @@ The single machine-readable entry point is `onboarding/contract.yaml`. See also 
 
 Core onboarding and optional capability activation are separate lifecycles.
 
-A Hub can be fully verified while optional capabilities are:
+A Truthrail instance can be fully verified while optional capabilities are:
 
 ```text
 ready     — fully usable
@@ -196,12 +202,12 @@ See `docs/capability-activation-v0.1.md` and
 A new instance does not need a PAT, API key, SSH key, or other custom secret:
 
 ```bash
-agent-hub-core init --owner example-org \
+truthrail init --owner example-org \
   --project example-org/public-repo-one \
   --project example-org/public-repo-two
 
-agent-hub-core validate-instance
-agent-hub-core doctor
+truthrail validate-instance
+truthrail doctor
 ```
 
 The generated `.agent-hub/` contains:
@@ -230,7 +236,7 @@ secret value stays in the provider's secret store.
 CI also runs:
 
 ```bash
-agent-hub-core bootstrap-acceptance
+truthrail bootstrap-acceptance
 ```
 
 This creates a fresh five-repository instance in a temporary directory, verifies that
@@ -244,7 +250,7 @@ aliases, capability pointers, credential metadata, and durable context. A saniti
 example lives in `examples/instance/`.
 
 Secret **values** are outside the protocol. Only names, scopes, stores, and safe
-consumer routes belong in an Agent Hub instance.
+consumer routes belong in a Truthrail instance.
 
 ## Conformance
 
