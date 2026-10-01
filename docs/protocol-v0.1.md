@@ -120,6 +120,33 @@ an expansion.
 Policy owners may treat an expansion as advisory, require review, or fail CI with
 `--fail-on-expansion`.
 
+### 6.2 Capability policy v1
+
+`truthrail capability-policy BEFORE AFTER` evaluates the capability diff against
+the portable default policy in `capabilities/policy-v1.yaml`.
+
+The result is one of:
+
+- `PASS` — no finding requires intervention;
+- `REVIEW` — a human should review the authority change before merge;
+- `BLOCK` — the default policy rejects the change until the authority boundary or
+  policy is explicitly redesigned.
+
+The default v1 policy deliberately keeps `BLOCK` narrow:
+
+- adding a new AI-routable operation;
+- changing an existing operation from `agent_routable: false` to `true`;
+- removing an explicit human gate.
+
+Other deterministic expansions, including new credential references, permission
+escalations, network destinations, external side effects, higher execution levels, or
+higher same-unit cost ceilings, produce `REVIEW`. Security-relevant changes whose
+direction cannot be proven also produce `REVIEW`. Pure reductions pass by default.
+
+The policy is a review/admission policy, not an executor. It never grants a capability,
+reads a credential value, or executes either contract. CI may use `--fail-on block`
+to reject only BLOCK findings, or `--fail-on review` to require PASS.
+
 ## 7. Credential boundary
 
 Credential routes may contain metadata such as:
