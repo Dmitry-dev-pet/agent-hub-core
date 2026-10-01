@@ -158,6 +158,47 @@ class CapabilityDiffTests(unittest.TestCase):
         self.assertIn("write", rendered)
 
 
+    def test_legacy_metadata_declaration_is_not_authority_expansion(self):
+        before = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+            }
+        )
+        after = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "credential_refs": ["EXISTING_TOKEN"],
+                "github_permissions": {"contents": "write"},
+                "network_destinations": ["api.example.com"],
+                "external_side_effects": ["example.mutation"],
+                "human_gate": "none",
+                "cost_ceiling": {"amount": 10, "unit": "runner_minutes"},
+            }
+        )
+        report = diff_control_planes(before, after)
+        self.assertEqual(report["summary"]["expansions"], 0)
+        self.assertGreater(report["summary"]["other_changes"], 0)
+
+    def test_explicit_empty_to_new_credential_is_expansion(self):
+        before = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "credential_refs": [],
+            }
+        )
+        after = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "credential_refs": ["NEW_TOKEN"],
+            }
+        )
+        report = diff_control_planes(before, after)
+        self.assertEqual(report["summary"]["expansions"], 1)
+
     def test_execution_repository_change_is_reported(self):
         before = contract(
             {

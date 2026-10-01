@@ -32,6 +32,28 @@ def _change(field: str, classification: str, before: Any, after: Any, **extra: A
 
 
 def _diff_set(field: str, before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    if field not in before and field in after:
+        return [
+            _change(
+                field,
+                "changed",
+                None,
+                sorted(set(after.get(field, []))),
+                added=sorted(set(after.get(field, []))),
+                removed=[],
+            )
+        ]
+    if field in before and field not in after:
+        return [
+            _change(
+                field,
+                "changed",
+                sorted(set(before.get(field, []))),
+                None,
+                added=[],
+                removed=sorted(set(before.get(field, []))),
+            )
+        ]
     old = set(before.get(field, []))
     new = set(after.get(field, []))
     changes: list[dict[str, Any]] = []
@@ -63,6 +85,24 @@ def _diff_set(field: str, before: dict[str, Any], after: dict[str, Any]) -> list
 
 
 def _diff_permissions(before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    if "github_permissions" not in before and "github_permissions" in after:
+        return [
+            _change(
+                "github_permissions",
+                "changed",
+                None,
+                after.get("github_permissions", {}),
+            )
+        ]
+    if "github_permissions" in before and "github_permissions" not in after:
+        return [
+            _change(
+                "github_permissions",
+                "changed",
+                before.get("github_permissions", {}),
+                None,
+            )
+        ]
     old = before.get("github_permissions", {})
     new = after.get("github_permissions", {})
     changes: list[dict[str, Any]] = []
@@ -107,6 +147,10 @@ def _diff_agent_routable(before: dict[str, Any], after: dict[str, Any]) -> list[
 
 
 def _diff_human_gate(before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    if "human_gate" not in before and "human_gate" in after:
+        return [_change("human_gate", "changed", None, after.get("human_gate"))]
+    if "human_gate" in before and "human_gate" not in after:
+        return [_change("human_gate", "changed", before.get("human_gate"), None)]
     old = before.get("human_gate")
     new = after.get("human_gate")
     if old == new:
@@ -121,6 +165,10 @@ def _diff_human_gate(before: dict[str, Any], after: dict[str, Any]) -> list[dict
 
 
 def _diff_cost_ceiling(before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    if "cost_ceiling" not in before and "cost_ceiling" in after:
+        return [_change("cost_ceiling", "changed", None, after.get("cost_ceiling"))]
+    if "cost_ceiling" in before and "cost_ceiling" not in after:
+        return [_change("cost_ceiling", "changed", before.get("cost_ceiling"), None)]
     old = before.get("cost_ceiling")
     new = after.get("cost_ceiling")
     if old == new:

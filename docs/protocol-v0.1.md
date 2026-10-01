@@ -111,8 +111,14 @@ Deterministic expansions include:
 
 Changes whose security direction cannot be proven from the contract, such as switching
 execution venue or changing cost units, are reported as `changed`, not guessed as
-safe or dangerous. Policy owners may treat an expansion as advisory, require review,
-or fail CI with `--fail-on-expansion`.
+safe or dangerous. The first introduction of previously absent authority metadata on a
+legacy operation is also reported as `changed`, not as an expansion: absence in an
+older contract means "undeclared", not "no authority". Once a field is explicitly
+present, later widening such as an empty credential list gaining a new credential is
+an expansion.
+
+Policy owners may treat an expansion as advisory, require review, or fail CI with
+`--fail-on-expansion`.
 
 ## 7. Credential boundary
 
