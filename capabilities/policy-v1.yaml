@@ -1,0 +1,53 @@
+version: 1
+id: truthrail-default-v1
+
+decisions:
+  PASS:
+    rank: 0
+    meaning: no policy finding requires intervention
+  REVIEW:
+    rank: 1
+    meaning: a human should review the authority change before merge
+  BLOCK:
+    rank: 2
+    meaning: the default policy rejects the authority change until the contract is redesigned or an explicit policy is changed
+
+rules:
+  TRP001:
+    decision: BLOCK
+    match: new_agent_routable_operation
+    reason: new AI-routable operation expands the agent command surface
+  TRP002:
+    decision: BLOCK
+    match: agent_routable_false_to_true
+    reason: existing operator-only operation becomes AI-routable
+  TRP003:
+    decision: BLOCK
+    match: explicit_human_gate_removed
+    reason: a previously explicit human gate is removed
+  TRP100:
+    decision: REVIEW
+    match: other_explicit_authority_expansion
+    examples:
+      - new credential reference
+      - GitHub permission escalation
+      - new network destination
+      - new external side effect
+      - higher execution level
+      - higher same-unit cost ceiling
+  TRP101:
+    decision: REVIEW
+    match: security_relevant_context_changed_without_monotonic_direction
+    examples:
+      - runtime auth changed
+      - execution venue changed
+      - execution repository changed
+      - execution contract changed
+      - first declaration of legacy authority metadata
+
+principles:
+  reductions_pass_by_default: true
+  block_is_narrow: true
+  unknown_direction_is_review_not_block: true
+  no_llm_judgment: true
+  secret_values_outside_policy: true
