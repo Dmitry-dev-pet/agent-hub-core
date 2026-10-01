@@ -15,6 +15,7 @@ _SET_FIELDS = (
 _SCALAR_FIELDS = (
     "runtime_auth",
     "execution_venue",
+    "execution_repository",
     "execution_contract",
 )
 
