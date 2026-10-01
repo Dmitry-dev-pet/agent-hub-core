@@ -1,0 +1,48 @@
+version: 1
+id: truthrail-admission-v1
+
+decisions:
+  ADMIT:
+    meaning: the reviewed operation may proceed to its next bounded execution stage
+  REQUIRE_HUMAN:
+    meaning: execution must stop before credential-bearing or consequential work until trusted human approval is supplied
+  DENY:
+    meaning: the reviewed operation must not execute
+
+rules:
+  TRA001:
+    decision: DENY
+    match: unknown_operation
+  TRA002:
+    decision: DENY
+    match: agent_route_to_non_routable_operation
+  TRA003:
+    decision: DENY
+    match: requester_does_not_match_repository_owner
+  TRA004:
+    decision: DENY
+    match: missing_admission_declaration
+  TRA005:
+    decision: DENY
+    match: agent_route_to_operator_only_operation
+  TRA006:
+    decision: DENY
+    match: unsupported_admission_mode
+  TRA100:
+    decision: REQUIRE_HUMAN
+    match: manual_approval_required
+  TRA101:
+    decision: ADMIT
+    match: provider_interaction_still_required
+  TRA102:
+    decision: ADMIT
+    match: trusted_operator_route
+
+principles:
+  fail_closed_on_missing_contract_metadata: true
+  validate_requester_before_credentials: true
+  live_reviewed_contract_is_authoritative: true
+  provider_interaction_remains_mandatory_after_admission: true
+  post_execution_review_is_separate_from_admission: true
+  no_llm_judgment: true
+  no_secret_values: true
