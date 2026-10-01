@@ -147,6 +147,7 @@ v0.1 includes executable JSON Schemas for:
 - onboarding receipts
 - capability readiness snapshots
 - capability activation receipts
+- capability policy decisions
 
 See `docs/protocol-v0.1.md` and `examples/v0.1/`.
 
