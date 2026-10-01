@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "kind": "operation_admission_decision",
+  "policy": "truthrail-admission-v1",
+  "decision": "ADMIT",
+  "operation": "deploy",
+  "actor": "example-owner",
+  "owner": "example-owner",
+  "route": "agent",
+  "contract_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "operation_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "requirements": [],
+  "findings": []
+}
