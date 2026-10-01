@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .capability_diff import diff_control_planes
+from .validation import validate_document
 
 
 POLICY_ID = "truthrail-default-v1"
@@ -157,7 +158,7 @@ def evaluate_capability_policy(report: dict[str, Any]) -> dict[str, Any]:
     for finding in findings:
         counts[finding["decision"]] += 1
 
-    return {
+    result = {
         "version": 1,
         "kind": "capability_policy_decision",
         "policy": POLICY_ID,
@@ -169,6 +170,8 @@ def evaluate_capability_policy(report: dict[str, Any]) -> dict[str, Any]:
         },
         "findings": findings,
     }
+    validate_document("capability_policy_decision", result)
+    return result
 
 
 def evaluate_control_plane_policy(
