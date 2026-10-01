@@ -22,6 +22,7 @@ SCHEMA_FILES = {
     "capability_readiness": "capability-readiness.schema.json",
     "capability_activation_receipt": "capability-activation-receipt.schema.json",
     "capability_policy_decision": "capability-policy-decision.schema.json",
+    "operation_admission_decision": "operation-admission-decision.schema.json",
 }
 
 
