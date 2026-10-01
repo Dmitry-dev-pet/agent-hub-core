@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- add deterministic reviewed-control-plane capability diffs with Markdown/JSON output;
+- add explicit operation metadata for GitHub permissions, network destinations, external side effects, cost ceilings, human gates, runtime auth and execution venues;
+- add optional `--fail-on-expansion` CI policy without making blocking the protocol default;
+
 - adopt **Truthrail** as the product name with the tagline `One source of truth. Any AI.`;
 - add the preferred `truthrail` CLI while retaining `agent-hub-core` for v0.1 compatibility;
 - keep legacy Python package, on-disk paths, and schema identifiers stable during the rename;
