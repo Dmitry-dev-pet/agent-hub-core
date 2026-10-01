@@ -1,5 +1,11 @@
+import io
+import json
+import tempfile
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 
+from agent_hub_core.cli import main
 from agent_hub_core.capability_diff import (
     diff_control_planes,
     format_capability_diff_markdown,
@@ -150,6 +156,44 @@ class CapabilityDiffTests(unittest.TestCase):
         self.assertIn("github_permissions.contents", rendered)
         self.assertIn("read", rendered)
         self.assertIn("write", rendered)
+
+
+    def test_cli_can_fail_on_expansion(self):
+        before = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "github_permissions": {"contents": "read"},
+            }
+        )
+        after = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "github_permissions": {"contents": "write"},
+            }
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            before_path = root / "before.json"
+            after_path = root / "after.json"
+            before_path.write_text(json.dumps(before), encoding="utf-8")
+            after_path.write_text(json.dumps(after), encoding="utf-8")
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                code = main(
+                    [
+                        "capability-diff",
+                        str(before_path),
+                        str(after_path),
+                        "--format",
+                        "json",
+                        "--fail-on-expansion",
+                    ]
+                )
+        self.assertEqual(code, 2)
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(payload["summary"]["expansions"], 1)
 
 
 if __name__ == "__main__":
