@@ -143,6 +143,8 @@ escalations, network destinations, external side effects, higher execution level
 higher same-unit cost ceilings, produce `REVIEW`. Security-relevant changes whose
 direction cannot be proven also produce `REVIEW`. Pure reductions pass by default.
 
+The emitted `capability_policy_decision` is validated by an executable JSON Schema.
+
 The policy is a review/admission policy, not an executor. It never grants a capability,
 reads a credential value, or executes either contract. CI may use `--fail-on block`
 to reject only BLOCK findings, or `--fail-on review` to require PASS.
