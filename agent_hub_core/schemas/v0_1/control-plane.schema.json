@@ -151,6 +151,10 @@
               "approval",
               "provider_interaction"
             ]
+          },
+          "execution_repository": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
           }
         },
         "anyOf": [

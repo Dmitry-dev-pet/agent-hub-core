@@ -158,6 +158,26 @@ class CapabilityDiffTests(unittest.TestCase):
         self.assertIn("write", rendered)
 
 
+    def test_execution_repository_change_is_reported(self):
+        before = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "execution_repository": "example/control-plane",
+            }
+        )
+        after = contract(
+            {
+                "agent_routable": True,
+                "trigger": "[op]",
+                "execution_repository": "example/credential-owner",
+            }
+        )
+        report = diff_control_planes(before, after)
+        change = report["operations"][0]["changes"][0]
+        self.assertEqual(change["field"], "execution_repository")
+        self.assertEqual(change["classification"], "changed")
+
     def test_cli_can_fail_on_expansion(self):
         before = contract(
             {
