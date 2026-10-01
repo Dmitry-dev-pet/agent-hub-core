@@ -88,6 +88,69 @@
           "execution_contract": {
             "type": "string",
             "minLength": 1
+          },
+          "runtime_auth": {
+            "type": "string",
+            "minLength": 1
+          },
+          "execution_venue": {
+            "type": "string",
+            "minLength": 1
+          },
+          "github_permissions": {
+            "type": "object",
+            "propertyNames": {
+              "pattern": "^[A-Za-z0-9_.-]+$"
+            },
+            "additionalProperties": {
+              "enum": [
+                "none",
+                "read",
+                "write"
+              ]
+            }
+          },
+          "network_destinations": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "external_side_effects": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "cost_ceiling": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "amount",
+              "unit"
+            ],
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "human_gate": {
+            "enum": [
+              "none",
+              "review",
+              "approval",
+              "provider_interaction"
+            ]
           }
         },
         "anyOf": [
