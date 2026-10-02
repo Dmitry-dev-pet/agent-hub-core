@@ -1,0 +1,66 @@
+name: OpenDots spike
+
+on:
+  pull_request:
+    paths:
+      - "agent_hub_core/tool_provider.py"
+      - "spikes/opendots/**"
+      - "tests/test_tool_provider.py"
+      - "tests/test_opendots_http_spike.py"
+      - ".github/workflows/opendots-spike.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  opendots-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Check out current OpenDots
+        run: git clone --depth 1 https://github.com/CopilotKit/OpenDots.git /tmp/opendots
+
+      - name: Inject Truthrail server tools
+        run: |
+          cp spikes/opendots/truthrail-tools.ts /tmp/opendots/src/server/truthrail-tools.ts
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("/tmp/opendots/src/server/dot-agent.ts")
+          source = path.read_text(encoding="utf-8")
+
+          import_needle = (
+              "import { learnedSkillTools, tanstackTools } "
+              "from './tanstack-tools.js';"
+          )
+          assert import_needle in source, "OpenDots tanstack-tools import changed"
+          source = source.replace(
+              import_needle,
+              import_needle
+              + "\nimport { truthrailTools } from './truthrail-tools.js';",
+              1,
+          )
+
+          tools_marker = "const serverTools = ["
+          assert tools_marker in source, "OpenDots serverTools declaration changed"
+          source = source.replace(
+              tools_marker,
+              tools_marker + chr(10) + "          ...truthrailTools(),",
+              1,
+          )
+          path.write_text(source, encoding="utf-8")
+          PY
+
+      - name: Install OpenDots dependencies
+        working-directory: /tmp/opendots
+        run: npm ci
+
+      - name: Typecheck OpenDots with Truthrail tools
+        working-directory: /tmp/opendots
+        run: npm run typecheck
