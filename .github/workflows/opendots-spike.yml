@@ -47,11 +47,11 @@ jobs:
               1,
           )
 
-          tools_marker = "        const serverTools = [\\n"
+          tools_marker = "const serverTools = ["
           assert tools_marker in source, "OpenDots serverTools declaration changed"
           source = source.replace(
               tools_marker,
-              tools_marker + "          ...truthrailTools(),\\n",
+              tools_marker + "\\n          ...truthrailTools(),",
               1,
           )
           path.write_text(source, encoding="utf-8")
