@@ -22,8 +22,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          cache: npm
-          cache-dependency-path: spikes/opendots/opendots-package-lock.placeholder
 
       - name: Check out current OpenDots
         run: git clone --depth 1 https://github.com/CopilotKit/OpenDots.git /tmp/opendots
