@@ -1,0 +1,35 @@
+{
+  "instance": {
+    "projects": [
+      {
+        "id": "demo-app",
+        "repo": "example-org/demo-app",
+        "aliases": ["demo", "demo app"]
+      }
+    ]
+  },
+  "live_state": {
+    "example-org/demo-app": {
+      "default_branch": "main",
+      "head": "abc123",
+      "open_prs": 1
+    }
+  },
+  "control_plane_contracts": {
+    "repo-admin": {
+      "version": 1,
+      "operations": {
+        "deploy": {
+          "agent_routable": true,
+          "trigger": "[deploy]",
+          "admission": {
+            "mode": "manual_approval",
+            "requester": "repository_owner"
+          }
+        }
+      }
+    }
+  },
+  "actor": "example-owner",
+  "owner": "example-owner"
+}
