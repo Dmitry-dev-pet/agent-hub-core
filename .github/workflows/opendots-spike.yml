@@ -47,18 +47,11 @@ jobs:
               1,
           )
 
-          tools_needle = """          ...(computer.configured
-                    ? computerTools(computer, dot.id, check, controller.signal)
-                    : []),
-                ];"""
-          assert tools_needle in source, "OpenDots serverTools shape changed"
+          tools_marker = "        const serverTools = [\\n"
+          assert tools_marker in source, "OpenDots serverTools declaration changed"
           source = source.replace(
-              tools_needle,
-              """          ...(computer.configured
-                    ? computerTools(computer, dot.id, check, controller.signal)
-                    : []),
-                  ...truthrailTools(),
-                ];""",
+              tools_marker,
+              tools_marker + "          ...truthrailTools(),\\n",
               1,
           )
           path.write_text(source, encoding="utf-8")
