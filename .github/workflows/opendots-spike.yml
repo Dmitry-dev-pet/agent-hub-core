@@ -51,7 +51,7 @@ jobs:
           assert tools_marker in source, "OpenDots serverTools declaration changed"
           source = source.replace(
               tools_marker,
-              tools_marker + "\\n          ...truthrailTools(),",
+              tools_marker + chr(10) + "          ...truthrailTools(),",
               1,
           )
           path.write_text(source, encoding="utf-8")
