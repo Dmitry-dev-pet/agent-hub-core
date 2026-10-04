@@ -41,10 +41,14 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/nono-pilot"
           mkdir -p "$root/inside" "$root/outside"
+          set +e
           "$NONO_BIN" run --read "$root/inside" --block-net --dry-run -- /usr/bin/true             > "$RUNNER_TEMP/nono-dry-run.txt" 2>&1
+          rc=$?
+          set -e
           cat "$RUNNER_TEMP/nono-dry-run.txt"
+          exit "$rc"
 
-      - name: Exercise kernel sandbox
+      - name: Exercise baseline kernel sandbox
         shell: bash
         run: |
           set -euo pipefail
@@ -55,25 +59,25 @@ jobs:
           printf 'inside-file\n' > "$inside/data.txt"
           printf 'outside-secret\n' > "$outside/secret.txt"
 
-          "$NONO_BIN" run --read "$inside" --block-net -- /bin/cat "$inside/data.txt"             > "$RUNNER_TEMP/allowed-read.txt"
+          "$NONO_BIN" run --read "$inside" --block-net --             /bin/cat "$inside/data.txt" > "$RUNNER_TEMP/allowed-read.txt"
 
-          if "$NONO_BIN" run --read "$inside" --block-net -- /bin/cat "$outside/secret.txt"               > "$RUNNER_TEMP/disallowed-read.txt" 2>&1; then
+          if "$NONO_BIN" run --read "$inside" --block-net --               /bin/cat "$outside/secret.txt"               > "$RUNNER_TEMP/disallowed-read.txt" 2>&1; then
             echo "Baseline isolation FAILED: disallowed file was readable" >&2
             exit 1
           fi
 
-          if "$NONO_BIN" run --read "$inside" --block-net -- /bin/sh -c               'printf x > "$1"' _ "$inside/data.txt"               > "$RUNNER_TEMP/read-only-write.txt" 2>&1; then
+          if "$NONO_BIN" run --read "$inside" --block-net --               /bin/sh -c 'printf x > "$1"' _ "$inside/data.txt"               > "$RUNNER_TEMP/read-only-write.txt" 2>&1; then
             echo "Read-only enforcement FAILED: write succeeded" >&2
             exit 1
           fi
 
-          if "$NONO_BIN" run --read "$inside" --block-net -- /usr/bin/curl               --fail --silent --show-error --max-time 5 https://example.com/               > "$RUNNER_TEMP/network-block.txt" 2>&1; then
+          if "$NONO_BIN" run --read "$inside" --block-net --               /usr/bin/curl --fail --silent --show-error --max-time 5               https://example.com/ > "$RUNNER_TEMP/network-block.txt" 2>&1; then
             echo "Network block FAILED: outbound request succeeded" >&2
             exit 1
           fi
 
-      - name: Probe deny-within-broad-allow semantics
-        id: carveout
+      - name: Probe built-in sensitive deny against broad HOME allow
+        id: home_carveout
         shell: bash
         run: |
           set -euo pipefail
@@ -86,20 +90,109 @@ jobs:
           "$NONO_BIN" run --allow "$HOME" -- /bin/cat "$sentinel"             > "$RUNNER_TEMP/home-carveout.txt" 2>&1
           rc=$?
           set -e
-
           rm -f "$sentinel"
 
           if [[ "$rc" -eq 0 ]]; then
             echo "result=fail" >> "$GITHUB_OUTPUT"
-            echo "::warning::Broad HOME allow exposed ~/.ssh sentinel; do not rely on deny-within-allow for our profile."
+            echo "::warning::Broad HOME allow exposed ~/.ssh sentinel."
           else
             echo "result=pass" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Probe custom deny under system-allowed tmp
+        id: custom_deny
+        shell: bash
+        run: |
+          set -euo pipefail
+          denied="/tmp/nono-pilot-denied"
+          mkdir -p "$denied"
+          printf 'custom-deny-sentinel\n' > "$denied/secret.txt"
+          profile="$RUNNER_TEMP/custom-deny.json"
+          cat > "$profile" <<JSON
+          {
+            "meta": {
+              "name": "custom-deny-pilot",
+              "version": "1.0.0"
+            },
+            "extends": "default",
+            "filesystem": {
+              "deny": ["/tmp/nono-pilot-denied"]
+            }
+          }
+          JSON
+
+          set +e
+          "$NONO_BIN" run --profile "$profile" --             /bin/cat "$denied/secret.txt"             > "$RUNNER_TEMP/custom-deny.txt" 2>&1
+          rc=$?
+          set -e
+          rm -rf "$denied"
+
+          if [[ "$rc" -eq 0 ]]; then
+            echo "result=fail" >> "$GITHUB_OUTPUT"
+            echo "::warning::Custom deny inside system-allowed /tmp was not enforced."
+          else
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Probe unknown profile field handling
+        id: unknown_field
+        shell: bash
+        run: |
+          set -euo pipefail
+          profile="$RUNNER_TEMP/unknown-field.json"
+          cat > "$profile" <<JSON
+          {
+            "meta": {
+              "name": "unknown-field-pilot",
+              "version": "1.0.0"
+            },
+            "extends": "default",
+            "filesystem": {
+              "denyy": ["/tmp/should-not-parse"]
+            }
+          }
+          JSON
+
+          set +e
+          "$NONO_BIN" run --profile "$profile" --dry-run -- /usr/bin/true             > "$RUNNER_TEMP/unknown-field.txt" 2>&1
+          rc=$?
+          set -e
+
+          if [[ "$rc" -eq 0 ]]; then
+            echo "result=fail" >> "$GITHUB_OUTPUT"
+            echo "::warning::Unknown profile field was silently accepted."
+          else
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$RUNNER_TEMP/unknown-field.txt"
+
+      - name: Probe default shared tmp visibility
+        id: shared_tmp
+        shell: bash
+        run: |
+          set -euo pipefail
+          sentinel="/tmp/nono-global-tmp-sentinel"
+          printf 'global-tmp-sentinel\n' > "$sentinel"
+
+          set +e
+          "$NONO_BIN" run -- /bin/cat "$sentinel"             > "$RUNNER_TEMP/shared-tmp.txt" 2>&1
+          rc=$?
+          set -e
+          rm -f "$sentinel"
+
+          if [[ "$rc" -eq 0 ]]; then
+            echo "result=visible" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=denied" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Write sanitized receipt
         shell: bash
         env:
-          CARVEOUT: ${{ steps.carveout.outputs.result }}
+          HOME_CARVEOUT: ${{ steps.home_carveout.outputs.result }}
+          CUSTOM_DENY: ${{ steps.custom_deny.outputs.result }}
+          UNKNOWN_FIELD: ${{ steps.unknown_field.outputs.result }}
+          SHARED_TMP: ${{ steps.shared_tmp.outputs.result }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -108,7 +201,7 @@ jobs:
           from pathlib import Path
 
           receipt = {
-              "version": 1,
+              "version": 2,
               "nono_version": "0.79.0",
               "platform": "macos-15-github-hosted",
               "baseline": {
@@ -117,7 +210,12 @@ jobs:
                   "read_only_write_block": "pass",
                   "network_block": "pass",
               },
-              "broad_home_sensitive_carveout": os.environ["CARVEOUT"],
+              "security_probes": {
+                  "broad_home_sensitive_carveout": os.environ["HOME_CARVEOUT"],
+                  "custom_deny_under_system_tmp": os.environ["CUSTOM_DENY"],
+                  "unknown_profile_field_rejected": os.environ["UNKNOWN_FIELD"],
+                  "default_shared_tmp": os.environ["SHARED_TMP"],
+              },
               "secrets_used": False,
               "production_host_touched": False,
           }
