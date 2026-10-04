@@ -184,6 +184,11 @@ truthrail validate --schema-version 0.2 --kind work_packet work-packet.json
 Python clients can use `validate_run_bundle()` to reject mixed-run packets before
 execution or handoff. See `docs/protocol-v0.2.md`.
 
+For freshness-sensitive execution, v0.2 also supports an optional
+`execution_binding`: a WorkPacket-bound state fingerprint plus policy-authorized
+`direct` / `branch_pr` routing. Bound receipts are rejected when they no longer
+match the active plan or re-read authoritative state.
+
 ## Reviewed control planes
 
 A privileged capability points to the owning repository's live operation contract
