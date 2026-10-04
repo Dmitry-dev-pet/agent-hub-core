@@ -16,14 +16,14 @@ def work_packet():
         "run_id": RUN_ID,
         "source": {"channel": "chatgpt", "reference": "conversation"},
         "created_at": "2026-10-04T20:30:00Z",
-        "project": "coimbra-video",
+        "project": "demo-video",
         "outcome": {"description": "Render and verify a preview."},
         "acceptance_proof": {
             "kind": "composite",
             "checks": ["workflow succeeds", "artifact exists"],
         },
         "execution_envelope": {
-            "repositories": ["example/coimbra-video"],
+            "repositories": ["example/demo-video"],
             "allowed": ["workflow_dispatch", "artifact_read"],
             "forbidden": ["credential_change"],
         },
@@ -85,7 +85,7 @@ class WorkOrderV02Tests(unittest.TestCase):
         plan = {
             "version": 2,
             "run_id": RUN_ID,
-            "project": "coimbra-video",
+            "project": "demo-video",
             "selected_level": "L3",
             "reason": "A workflow runtime is sufficient.",
             "capability": "github-actions",
