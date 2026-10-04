@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- add optional v0.2 execution bindings with WorkPacket digest + authoritative-state fingerprint;
+- add fail-closed stale receipt checks and policy-owned direct / branch_pr route authorization;
+- strengthen v0.2 run-bundle checks for project, acceptance proof, capability, approval and exact verified coverage;
+- add ACR-like PR summaries as non-authoritative projections over provider/verifier evidence;
+
 - add additive work continuity v0.2 schemas with stable `run_id` across WorkPacket, plan, receipt, verification, handoff, and lifecycle documents;
 - add source-channel and approval-policy metadata plus waiting/rejected/failed/cancelled lifecycle outcomes;
 - add mixed-run bundle validation and explicit CLI schema-version selection while preserving v0.1 defaults;
