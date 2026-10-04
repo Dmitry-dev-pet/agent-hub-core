@@ -41,7 +41,7 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/nono-pilot"
           mkdir -p "$root/inside" "$root/outside"
-          "$NONO_BIN" run --read "$root/inside" --net-block --dry-run -- /usr/bin/true             > "$RUNNER_TEMP/nono-dry-run.txt" 2>&1
+          "$NONO_BIN" run --read "$root/inside" --block-net --dry-run -- /usr/bin/true             > "$RUNNER_TEMP/nono-dry-run.txt" 2>&1
           cat "$RUNNER_TEMP/nono-dry-run.txt"
 
       - name: Exercise kernel sandbox
@@ -55,19 +55,19 @@ jobs:
           printf 'inside-file\n' > "$inside/data.txt"
           printf 'outside-secret\n' > "$outside/secret.txt"
 
-          "$NONO_BIN" run --read "$inside" --net-block -- /bin/cat "$inside/data.txt"             > "$RUNNER_TEMP/allowed-read.txt"
+          "$NONO_BIN" run --read "$inside" --block-net -- /bin/cat "$inside/data.txt"             > "$RUNNER_TEMP/allowed-read.txt"
 
-          if "$NONO_BIN" run --read "$inside" --net-block -- /bin/cat "$outside/secret.txt"               > "$RUNNER_TEMP/disallowed-read.txt" 2>&1; then
+          if "$NONO_BIN" run --read "$inside" --block-net -- /bin/cat "$outside/secret.txt"               > "$RUNNER_TEMP/disallowed-read.txt" 2>&1; then
             echo "Baseline isolation FAILED: disallowed file was readable" >&2
             exit 1
           fi
 
-          if "$NONO_BIN" run --read "$inside" --net-block -- /bin/sh -c               'printf x > "$1"' _ "$inside/data.txt"               > "$RUNNER_TEMP/read-only-write.txt" 2>&1; then
+          if "$NONO_BIN" run --read "$inside" --block-net -- /bin/sh -c               'printf x > "$1"' _ "$inside/data.txt"               > "$RUNNER_TEMP/read-only-write.txt" 2>&1; then
             echo "Read-only enforcement FAILED: write succeeded" >&2
             exit 1
           fi
 
-          if "$NONO_BIN" run --read "$inside" --net-block -- /usr/bin/curl               --fail --silent --show-error --max-time 5 https://example.com/               > "$RUNNER_TEMP/network-block.txt" 2>&1; then
+          if "$NONO_BIN" run --read "$inside" --block-net -- /usr/bin/curl               --fail --silent --show-error --max-time 5 https://example.com/               > "$RUNNER_TEMP/network-block.txt" 2>&1; then
             echo "Network block FAILED: outbound request succeeded" >&2
             exit 1
           fi
