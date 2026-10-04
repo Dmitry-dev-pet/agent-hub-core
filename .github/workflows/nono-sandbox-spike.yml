@@ -1,0 +1,136 @@
+name: Nono sandbox spike
+
+on:
+  push:
+    branches:
+      - spike/nono-sandbox-smoke
+
+permissions:
+  contents: read
+
+jobs:
+  macos-smoke:
+    runs-on: macos-15
+    timeout-minutes: 10
+    env:
+      NONO_VERSION: "0.79.0"
+      NONO_SHA256: "e46365b08aecff0acc9c7b86f5d4b1745c385034189d50822156e43881479168"
+      NONO_URL: "https://github.com/nolabs-ai/nono/releases/download/v0.79.0/nono-v0.79.0-aarch64-apple-darwin.tar.gz"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download pinned nono release
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/nono.tar.gz"
+          mkdir -p "$RUNNER_TEMP/nono-bin"
+          curl --fail --location --silent --show-error "$NONO_URL" --output "$archive"
+          printf '%s  %s\n' "$NONO_SHA256" "$archive" | shasum -a 256 -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP/nono-bin"
+          binary="$(find "$RUNNER_TEMP/nono-bin" -type f -name nono -perm +111 -print -quit)"
+          test -n "$binary"
+          printf 'NONO_BIN=%s\n' "$binary" >> "$GITHUB_ENV"
+          "$binary" --version
+
+      - name: Dry-run resolved policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/nono-pilot"
+          mkdir -p "$root/inside" "$root/outside"
+          "$NONO_BIN" run --read "$root/inside" --net-block --dry-run -- /usr/bin/true             > "$RUNNER_TEMP/nono-dry-run.txt" 2>&1
+          cat "$RUNNER_TEMP/nono-dry-run.txt"
+
+      - name: Exercise kernel sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/nono-pilot"
+          inside="$root/inside"
+          outside="$root/outside"
+          mkdir -p "$inside" "$outside"
+          printf 'inside-file\n' > "$inside/data.txt"
+          printf 'outside-secret\n' > "$outside/secret.txt"
+
+          "$NONO_BIN" run --read "$inside" --net-block -- /bin/cat "$inside/data.txt"             > "$RUNNER_TEMP/allowed-read.txt"
+
+          if "$NONO_BIN" run --read "$inside" --net-block -- /bin/cat "$outside/secret.txt"               > "$RUNNER_TEMP/disallowed-read.txt" 2>&1; then
+            echo "Baseline isolation FAILED: disallowed file was readable" >&2
+            exit 1
+          fi
+
+          if "$NONO_BIN" run --read "$inside" --net-block -- /bin/sh -c               'printf x > "$1"' _ "$inside/data.txt"               > "$RUNNER_TEMP/read-only-write.txt" 2>&1; then
+            echo "Read-only enforcement FAILED: write succeeded" >&2
+            exit 1
+          fi
+
+          if "$NONO_BIN" run --read "$inside" --net-block -- /usr/bin/curl               --fail --silent --show-error --max-time 5 https://example.com/               > "$RUNNER_TEMP/network-block.txt" 2>&1; then
+            echo "Network block FAILED: outbound request succeeded" >&2
+            exit 1
+          fi
+
+      - name: Probe deny-within-broad-allow semantics
+        id: carveout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          sentinel="$HOME/.ssh/nono-pilot-sentinel"
+          printf 'pilot-only\n' > "$sentinel"
+          chmod 600 "$sentinel"
+
+          set +e
+          "$NONO_BIN" run --allow "$HOME" -- /bin/cat "$sentinel"             > "$RUNNER_TEMP/home-carveout.txt" 2>&1
+          rc=$?
+          set -e
+
+          rm -f "$sentinel"
+
+          if [[ "$rc" -eq 0 ]]; then
+            echo "result=fail" >> "$GITHUB_OUTPUT"
+            echo "::warning::Broad HOME allow exposed ~/.ssh sentinel; do not rely on deny-within-allow for our profile."
+          else
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write sanitized receipt
+        shell: bash
+        env:
+          CARVEOUT: ${{ steps.carveout.outputs.result }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          receipt = {
+              "version": 1,
+              "nono_version": "0.79.0",
+              "platform": "macos-15-github-hosted",
+              "baseline": {
+                  "allowed_read": "pass",
+                  "disallowed_read": "pass",
+                  "read_only_write_block": "pass",
+                  "network_block": "pass",
+              },
+              "broad_home_sensitive_carveout": os.environ["CARVEOUT"],
+              "secrets_used": False,
+              "production_host_touched": False,
+          }
+          out = Path("artifacts/nono-sandbox-spike")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+          print(json.dumps(receipt, indent=2))
+          PY
+          cat artifacts/nono-sandbox-spike/receipt.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nono-sandbox-spike
+          path: artifacts/nono-sandbox-spike/receipt.json
+          if-no-files-found: error
+          retention-days: 7
