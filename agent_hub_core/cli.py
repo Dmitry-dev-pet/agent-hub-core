@@ -17,7 +17,13 @@ from .instance import (
     init_instance,
     validate_instance,
 )
-from .validation import ProtocolValidationError, SCHEMA_FILES, check_schemas, validate_file
+from .validation import (
+    ProtocolValidationError,
+    SCHEMA_FILES,
+    SCHEMA_FILES_BY_VERSION,
+    check_schemas,
+    validate_file,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -66,9 +72,22 @@ def build_parser() -> argparse.ArgumentParser:
         "validate", help="Validate one protocol JSON document."
     )
     validate.add_argument("--kind", choices=sorted(SCHEMA_FILES), required=True)
+    validate.add_argument(
+        "--schema-version",
+        choices=sorted(SCHEMA_FILES_BY_VERSION),
+        default="0.1",
+        help="Protocol schema version; v0.1 remains the compatibility default.",
+    )
     validate.add_argument("path", type=Path)
 
-    sub.add_parser("check-schemas", help="Validate all bundled JSON Schemas.")
+    check_schemas_cmd = sub.add_parser(
+        "check-schemas", help="Validate bundled JSON Schemas."
+    )
+    check_schemas_cmd.add_argument(
+        "--schema-version",
+        choices=["all", *sorted(SCHEMA_FILES_BY_VERSION)],
+        default="all",
+    )
     sub.add_parser(
         "conformance", help="Run the deterministic v0.1 protocol scenario."
     )
@@ -165,12 +184,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             _print_json(result)
             return 0 if result["ok"] else 1
         if args.command == "validate":
-            validate_file(args.kind, args.path)
-            print(f"OK: {args.kind} {args.path}")
+            validate_file(
+                args.kind,
+                args.path,
+                schema_version=args.schema_version,
+            )
+            print(
+                f"OK: {args.kind} schema={args.schema_version} {args.path}"
+            )
             return 0
         if args.command == "check-schemas":
-            check_schemas()
-            print(f"OK: {len(SCHEMA_FILES)} schemas")
+            version = None if args.schema_version == "all" else args.schema_version
+            check_schemas(version)
+            label = "all" if version is None else version
+            print(f"OK: schema_version={label}")
             return 0
         if args.command == "conformance":
             _print_json(run_scenario())
