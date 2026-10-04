@@ -2,7 +2,7 @@ import unittest
 from importlib.resources import files
 
 import agent_hub_core
-from agent_hub_core.validation import SCHEMA_FILES
+from agent_hub_core.validation import CONTINUITY_SCHEMA_FILES, SCHEMA_FILES
 
 
 class PackagingTests(unittest.TestCase):
@@ -12,8 +12,13 @@ class PackagingTests(unittest.TestCase):
     def test_all_schemas_are_packaged(self):
         root = files("agent_hub_core.schemas.v0_1")
         for filename in SCHEMA_FILES.values():
-            with self.subTest(filename=filename):
+            with self.subTest(version="0.1", filename=filename):
                 self.assertTrue(root.joinpath(filename).is_file())
+
+        root_v02 = files("agent_hub_core.schemas.v0_2")
+        for filename in CONTINUITY_SCHEMA_FILES.values():
+            with self.subTest(version="0.2", filename=filename):
+                self.assertTrue(root_v02.joinpath(filename).is_file())
 
 
 if __name__ == "__main__":

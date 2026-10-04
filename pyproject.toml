@@ -37,3 +37,4 @@ include = ["agent_hub_core*"]
 
 [tool.setuptools.package-data]
 "agent_hub_core.schemas.v0_1" = ["*.json"]
+"agent_hub_core.schemas.v0_2" = ["*.json"]

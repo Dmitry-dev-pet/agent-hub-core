@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- add additive work continuity v0.2 schemas with stable `run_id` across WorkPacket, plan, receipt, verification, handoff, and lifecycle documents;
+- add source-channel and approval-policy metadata plus waiting/rejected/failed/cancelled lifecycle outcomes;
+- add mixed-run bundle validation and explicit CLI schema-version selection while preserving v0.1 defaults;
+
 - add runtime operation admission v1 with ADMIT / REQUIRE_HUMAN / DENY decisions;
 - add explicit per-operation admission mode/requester metadata and fail-closed semantics;
 - add machine-readable `capabilities/admission-v1.yaml`, decision schema, CLI and tests;

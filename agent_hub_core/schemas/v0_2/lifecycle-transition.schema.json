@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-hub-core:v0.2:lifecycle-transition",
+  "title": "Truthrail lifecycle transition v0.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "run_id",
+    "from",
+    "to"
+  ],
+  "properties": {
+    "version": {
+      "const": 2
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "from": {
+      "enum": [
+        "resolved",
+        "planned",
+        "waiting_approval",
+        "executing",
+        "executed",
+        "verifying"
+      ]
+    },
+    "to": {
+      "enum": [
+        "planned",
+        "waiting_approval",
+        "executing",
+        "executed",
+        "verifying",
+        "verified",
+        "blocked",
+        "failed",
+        "rejected",
+        "cancelled"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "from": {
+          "const": "resolved"
+        },
+        "to": {
+          "enum": [
+            "planned",
+            "blocked",
+            "cancelled"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "planned"
+        },
+        "to": {
+          "enum": [
+            "waiting_approval",
+            "executing",
+            "blocked",
+            "cancelled"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "waiting_approval"
+        },
+        "to": {
+          "enum": [
+            "executing",
+            "rejected",
+            "blocked",
+            "cancelled"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "executing"
+        },
+        "to": {
+          "enum": [
+            "executed",
+            "failed",
+            "blocked",
+            "cancelled"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "executed"
+        },
+        "to": {
+          "enum": [
+            "verifying",
+            "failed",
+            "blocked"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "from": {
+          "const": "verifying"
+        },
+        "to": {
+          "enum": [
+            "verified",
+            "failed",
+            "blocked"
+          ]
+        }
+      }
+    }
+  ]
+}

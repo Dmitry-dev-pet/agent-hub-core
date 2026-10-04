@@ -168,6 +168,22 @@ v0.1 includes executable JSON Schemas for:
 
 See `docs/protocol-v0.1.md` and `examples/v0.1/`.
 
+### Work continuity v0.2
+
+v0.2 is an additive continuity layer for chat-first operators. A WorkPacket becomes
+the durable work-order root for one user-authorized outcome. The six continuity
+documents carry one stable `run_id`, WorkPacket records the source channel and
+approval policy, and the lifecycle can pause at `waiting_approval` before execution.
+
+v0.1 remains unchanged and is still the compatibility default. Opt into v0.2 with:
+
+```bash
+truthrail validate --schema-version 0.2 --kind work_packet work-packet.json
+```
+
+Python clients can use `validate_run_bundle()` to reject mixed-run packets before
+execution or handoff. See `docs/protocol-v0.2.md`.
+
 ## Reviewed control planes
 
 A privileged capability points to the owning repository's live operation contract
