@@ -7,7 +7,7 @@ from agent_hub_core.validation import (
 )
 
 
-RUN_ID = "run-coimbra-0001"
+RUN_ID = "run-demo-0001"
 
 
 def work_packet():
@@ -48,7 +48,7 @@ class WorkOrderV02Tests(unittest.TestCase):
             "version": 2,
             "run_id": RUN_ID,
             "status": "executed",
-            "capability": "mac-access",
+            "capability": "machine-runtime",
             "approval": {"status": "approved"},
             "authoritative_refs": [{"type": "workflow_run", "value": "123"}],
             "observations": [],
