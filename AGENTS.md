@@ -23,6 +23,9 @@ This repository is the portable, user-agnostic Truthrail Core reference implemen
 - Only operations with `agent_routable: true` are AI-routable.
 - Secret values are outside the protocol.
 - `executed != verified`.
+- In v0.2 the WorkPacket is the single root work order; execution bindings must not create a parallel task/lifecycle owner.
+- Agent route proposals do not grant authority; policy owns the authorized direct/branch_pr route.
+- A bound receipt is stale if its execution-plan digest or state fingerprint no longer matches authoritative state.
 - Keep handoff packets bounded; do not forward complete chat histories.
 - Do not introduce a generic privileged shell or universal executor.
 
