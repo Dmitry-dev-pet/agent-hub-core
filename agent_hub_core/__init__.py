@@ -6,6 +6,17 @@ from .admission import evaluate_operation_admission, format_operation_admission_
 from .capability_diff import diff_control_planes, format_capability_diff_markdown
 from .capability_policy import evaluate_capability_policy, evaluate_control_plane_policy, format_capability_policy_markdown
 from .conformance import run_scenario
+from .execution_binding import (
+    ExecutionBindingError,
+    StaleExecutionResultError,
+    assert_receipt_fresh,
+    authorize_repository_route,
+    bind_execution_plan,
+    bind_execution_receipt,
+    canonical_digest,
+    compute_state_fingerprint,
+    render_pr_summary,
+)
 from .instance import (
     InstanceValidationError,
     bootstrap_acceptance,
@@ -24,6 +35,15 @@ from .validation import (
 
 __all__ = [
     "__version__",
+    "ExecutionBindingError",
+    "StaleExecutionResultError",
+    "assert_receipt_fresh",
+    "authorize_repository_route",
+    "bind_execution_plan",
+    "bind_execution_receipt",
+    "canonical_digest",
+    "compute_state_fingerprint",
+    "render_pr_summary",
     "InstanceValidationError",
     "ProtocolValidationError",
     "ReferenceAdapter",
