@@ -19,6 +19,7 @@ from .validation import (
     check_schemas,
     validate_document,
     validate_file,
+    validate_run_bundle,
 )
 
 __all__ = [
@@ -41,5 +42,6 @@ __all__ = [
     "run_scenario",
     "validate_document",
     "validate_file",
+    "validate_run_bundle",
     "validate_instance",
 ]
