@@ -86,6 +86,47 @@
         "type": "string",
         "minLength": 1
       }
+    },
+    "execution_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state_fingerprint",
+        "execution_plan_digest",
+        "route"
+      ],
+      "properties": {
+        "state_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "execution_plan_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "route": {
+          "enum": [
+            "direct",
+            "branch_pr"
+          ]
+        }
+      }
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_venue": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_effects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     }
   },
   "allOf": [
