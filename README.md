@@ -1,5 +1,7 @@
 # Truthrail Core
 
+**English** | [Русский](README.ru.md)
+
 **One source of truth. Any AI.**
 
 > **Developer preview.** Truthrail is currently an open protocol and reference
