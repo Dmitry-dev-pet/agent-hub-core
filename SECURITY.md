@@ -1,6 +1,6 @@
 # Security
 
-Agent Hub Core is designed so secret values and generic privileged execution are
+Truthrail Core is designed so secret values and generic privileged execution are
 outside the protocol.
 
 Please do not report secret values in a public issue. If a vulnerability could expose
