@@ -2,11 +2,43 @@
 
 **One source of truth. Any AI.**
 
-> Formerly **Agent Hub Core**. The v0.1 technical identifiers (`agent-hub-core`, `agent_hub_core`, `.agent-hub/`, and existing schema IDs) remain supported during the rename.
+> **Developer preview.** Truthrail is currently an open protocol and reference
+> implementation. The repository is usable from a source checkout; a packaged
+> end-user installer is not published yet.
 
-Truthrail Core is a portable, GitHub-native protocol and reference implementation
-for routing AI-assisted work across repositories, APIs, reviewed control planes,
-ephemeral runtimes, coding agents, and machine-bound executors.
+**Keep using your AI chat. Make the chat disposable.**
+
+Truthrail lets a fresh AI session recover ongoing work from durable external state,
+route the next step through the narrowest available capability, and verify the result
+against the live system instead of trusting conversation memory.
+
+```text
+ChatGPT / another AI chat
+          │
+          ▼
+      Truthrail
+   ┌──────┼────────┐
+   ▼      ▼        ▼
+ GitHub  reviewed  ephemeral /
+ live    control   machine-bound
+ state   planes    executors
+```
+
+Truthrail itself does **not** require a permanent central agent daemon or an
+always-on local computer. Machine-bound capabilities can still be attached when a
+task genuinely needs a specific host, GPU, GUI application, or local-only asset.
+
+The core rules are deliberately small:
+
+- chat is the user interface, not the source of truth;
+- live target systems outrank cached or conversational state;
+- durable work identity can survive a completely new chat session;
+- privileged actions stay inside reviewed, scoped capability contracts;
+- successful execution is not complete until the requested outcome is verified.
+
+> Formerly **Agent Hub Core**. The v0.1 technical identifiers (`agent-hub-core`,
+> `agent_hub_core`, `.agent-hub/`, and existing schema IDs) remain supported
+> during the rename.
 
 Version: **0.1.1**
 
@@ -38,10 +70,14 @@ between execution venues, record execution, and verify the requested outcome.
 Escalation should be monotonic for one attempt: move upward only when the lower level
 cannot satisfy the outcome or its acceptance proof.
 
-## Live cross-vendor demo
+## Public demos
 
-A tiny public demo under [`demo/`](demo/) proves the vendor-neutral interaction
-model without a special Truthrail connector:
+Two small demos isolate the two most important properties.
+
+### Cross-vendor execution
+
+The public [`demo/`](demo/) proves the vendor-neutral interaction model without a
+special Truthrail connector:
 
 ```text
 ChatGPT or Grok
@@ -56,9 +92,19 @@ The demo uses no custom secrets, workflow runner, or coding-agent runtime. The
 published contract selects the lowest sufficient level: one direct GitHub issue
 creation followed by read-back verification.
 
-## Install
+### Fresh-session continuity
 
-From a checkout:
+[`docs/fresh-session-demo.md`](docs/fresh-session-demo.md) gives a reproducible
+two-chat scenario: the first chat leaves a durable work item, the second chat starts
+without the old transcript, refreshes authoritative GitHub state, performs the pending
+action, verifies it by reading it back, and only then completes the run.
+
+The bundled deterministic conformance harness also proves fresh-session recovery
+without conversation memory.
+
+## Developer setup
+
+There is no packaged end-user installer yet. From a source checkout:
 
 ```bash
 python -m pip install -e .
