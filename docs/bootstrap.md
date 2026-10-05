@@ -1,8 +1,8 @@
 # Zero-custom-secret bootstrap
 
-Agent Hub Core separates **authentication for a capability** from the core protocol.
+Truthrail Core separates **authentication for a capability** from the core protocol.
 
-A fresh instance can start without any user-managed secret. Public GitHub reads use
+A fresh instance can start without any user-managed secret. The legacy `agent-hub-core` CLI remains an alias for v0.1 compatibility. Public GitHub reads use
 unauthenticated API access, direct connected operations may use ambient host
 authentication when available, and GitHub Actions can use GitHub's provider-managed
 `GITHUB_TOKEN`.
@@ -10,7 +10,7 @@ authentication when available, and GitHub Actions can use GitHub's provider-mana
 ## Create an instance
 
 ```bash
-agent-hub-core init --owner example-org \
+truthrail init --owner example-org \
   --project example-org/public-repo-one \
   --project example-org/public-repo-two
 ```
@@ -20,7 +20,7 @@ No credential values or placeholder tokens are generated.
 ## Validate
 
 ```bash
-agent-hub-core validate-instance
+truthrail validate-instance
 ```
 
 The validator checks file boundaries, project/alias consistency, execution levels,
@@ -31,7 +31,7 @@ are forbidden inside credential routes.
 ## Doctor
 
 ```bash
-agent-hub-core doctor
+truthrail doctor
 ```
 
 Doctor first runs local validation, then checks GitHub's public API without an
@@ -40,7 +40,7 @@ Authorization header. Every configured project is probed as a public repository.
 For deterministic or air-gapped validation:
 
 ```bash
-agent-hub-core doctor --offline
+truthrail doctor --offline
 ```
 
 A default instance reports:
@@ -57,12 +57,12 @@ A default instance reports:
 L2 reviewed control planes are intentionally absent from the default bootstrap.
 Add them capability-by-capability when needed. Their operation surface comes from a
 live reviewed `control-plane.json`; credential metadata may name a provider secret
-store, but secret values remain outside Agent Hub Core.
+store, but secret values remain outside Truthrail Core.
 
 ## Acceptance test
 
 ```bash
-agent-hub-core bootstrap-acceptance
+truthrail bootstrap-acceptance
 ```
 
 The acceptance test creates a second five-project instance in a temporary directory,
