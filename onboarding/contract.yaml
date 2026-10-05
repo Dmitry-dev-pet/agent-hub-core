@@ -2,10 +2,23 @@ version: 1
 name: agent-hub-onboarding
 default_mode: brownfield
 
+access_stages:
+  - id: explore
+    write_required: false
+    purpose: inspect public or user-approved repositories without mutation
+  - id: connect
+    write_required: true
+    write_scope: truthrail_instance_only
+    purpose: create or update one private Truthrail instance
+  - id: operate
+    write_required: optional
+    write_scope: per_capability_and_user_approved_target
+    purpose: enable project or infrastructure actions only when needed
+
 phases:
   - id: discover
     required: true
-    acceptance: complete_visible_repository_set
+    acceptance: complete_visible_repository_set_within_approved_scope
   - id: classify
     required: true
     acceptance: every_repository_preserved_and_ambiguities_explicit
@@ -23,6 +36,13 @@ phases:
     acceptance: onboarding_receipt_validated
 
 rules:
+  minimize_permissions: true
+  full_account_write_required: false
+  read_only_first: true
+  respect_user_approved_repository_scope: true
+  do_not_claim_visibility_outside_approved_scope: true
+  project_write_is_opt_in: true
+  infrastructure_write_is_opt_in: true
   preserve_every_discovered_repository: true
   guess_ambiguous_relationships: false
   mutate_repository_lifecycle_during_classification: false
@@ -45,6 +65,7 @@ fresh_recovery:
 
 receipt:
   kind: onboarding_receipt
+  coverage_semantics: approved_github_scope
   statuses:
     verified:
       complete_inventory_required: true
