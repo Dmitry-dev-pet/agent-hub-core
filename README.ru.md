@@ -5,8 +5,8 @@
 **Один источник истины. Любой ИИ.**
 
 > **Developer preview.** Сейчас Truthrail — это открытый протокол и эталонная
-> реализация. Репозиторий можно использовать из локального checkout; готового
-> установщика для конечного пользователя пока нет.
+> реализация. Обычный onboarding идёт прямо через чат: локальная установка, CLI
+> и постоянно включённый компьютер не требуются.
 
 **Продолжайте пользоваться привычным AI-чатом. Сами сессии могут быть одноразовыми.**
 
@@ -107,84 +107,36 @@ runtime. Опубликованный контракт выбирает мини
 Встроенный deterministic conformance harness также проверяет fresh-session recovery
 без conversation memory.
 
-## Настройка для разработчика
+## Как начать
 
-Готового установщика для конечного пользователя пока нет. Из source checkout:
+Для обычного использования **ничего локально устанавливать не нужно**.
 
-```bash
-python -m pip install -e .
+1. Подключите GitHub к AI-чату.
+2. Дайте чату доступ к своему GitHub-аккаунту и к публичному репозиторию Truthrail Core.
+3. Попросите его прочитать `skills/bootstrap-instance/SKILL.md` и выполнить onboarding GitHub-аккаунта.
+4. AI сам проходит `DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT`.
+5. После этого откройте полностью новый чат и проверьте восстановление из устойчивого состояния Truthrail.
+
+Минимальный запрос пользователю достаточно сформулировать так:
+
+```text
+Подключи мой GitHub-аккаунт к Truthrail.
+Используй bootstrap skill из Dmitry-dev-pet/truthrail-core.
+Не проси меня вручную перечислять репозитории или писать YAML, если эти данные можно получить из GitHub.
+Не копируй значения секретов.
+После onboarding проверь восстановление в новой сессии.
 ```
 
-Для разработки:
+Onboarding-агент должен сам обнаружить полный набор доступных репозиториев, прочитать
+живые repository evidence, не угадывать неоднозначные связи, создать или обновить
+приватный Truthrail instance пользователя и сформировать onboarding receipt со статусом
+`verified`, `partial` или `blocked`.
 
-```bash
-python -m pip install -e ".[dev]"
-```
+**Терминал не является частью обычного onboarding.**
 
-## CLI
-
-`truthrail` — предпочтительное имя CLI. Старое имя `agent-hub-core` остаётся
-алиасом для совместимости с v0.1.
-
-Проверить WorkPacket:
-
-```bash
-truthrail validate \
-  --kind work_packet \
-  examples/v0.1/work-packet.json
-```
-
-Проверить все встроенные схемы:
-
-```bash
-truthrail check-schemas
-```
-
-Запустить deterministic conformance scenario v0.1:
-
-```bash
-truthrail conformance
-```
-
-Сравнить явно объявленные authority surfaces двух проверенных control-plane contracts:
-
-```bash
-truthrail capability-diff before-control-plane.json after-control-plane.json
-```
-
-Для machine-readable вывода используйте `--format json`. CI может включить
-`--fail-on-expansion`; по умолчанию команда работает только как advisory и не
-выполняет ни один из сравниваемых contracts.
-
-Проверить переносимую policy по умолчанию:
-
-```bash
-truthrail capability-policy before-control-plane.json after-control-plane.json
-```
-
-Default policy v1 выдаёт `PASS`, `REVIEW` или `BLOCK`. Она блокирует только
-узкие снятия границ: появление новых AI-routable операций, включение agent routing для
-ранее operator-only операции или удаление явного human gate. Другие расширения
-authority требуют review. CI может блокировать только `BLOCK` через
-`--fail-on block` или требовать чистый `PASS` через `--fail-on review`.
-
-Проверить runtime admission до того, как операция дойдёт до credential-bearing или
-другого consequential execution:
-
-```bash
-truthrail admit-operation control-plane.json \
-  --operation deploy \
-  --actor example-owner \
-  --owner example-owner \
-  --route agent \
-  --require-admit
-```
-
-Runtime admission выдаёт `ADMIT`, `REQUIRE_HUMAN` или `DENY` на основе живого
-reviewed operation contract. Проверяются requester policy и agent routability; при
-отсутствии admission metadata система закрывается в безопасную сторону. Также
-фиксируются deterministic SHA-256 digests контракта и операции. Provider interaction
-и post-execution review остаются отдельными gates.
+Низкоуровневые CLI-команды остаются только для проверки протокола, CI, conformance
+tests и обслуживания reference implementation. Это не пользовательский интерфейс
+Truthrail.
 
 ## Python API
 
