@@ -14,7 +14,9 @@ Onboarding should request the **least access necessary**.
 1. **Explore** — read only. Inspect public repositories or only the repositories the
    user approved. Do not create, edit, or delete anything.
 2. **Connect** — write only to one private Truthrail instance so durable routing and
-   context can be stored. Project repositories may remain read-only.
+   context can be stored. For strict least privilege, the user may pre-create this
+   empty private repository and grant write access only to it. Project repositories
+   may remain read-only and may be added gradually.
 3. **Operate** — optional. Add write-capable project/infrastructure capabilities later,
    one target and one reviewed capability at a time.
 
