@@ -11,6 +11,28 @@ Truthrail for a GitHub account.
 The user should not need to manually list repositories or write YAML when GitHub already
 contains the required evidence.
 
+## Access policy: start read-only
+
+Use the least privilege available in the current GitHub connection.
+
+- Start with **Explore**: public repositories or user-approved repository scope,
+  read-only, no mutations.
+- Move to **Connect** only after the user wants persistence: create/update one private
+  Truthrail instance; do not require write access to project repositories.
+- Prefer a user-precreated empty private Truthrail repository when that avoids broader
+  account-level repository-creation permission.
+- Move to **Operate** only when the user asks for actions: enable write-capable
+  permissions/control planes for the specific project or service that needs them.
+
+Never request full-account write access merely to perform onboarding.
+
+If the connector/provider cannot offer fine-grained private-repository selection,
+support a public-repository Explore path rather than treating broad private access as
+mandatory.
+
+Completeness means complete within the user-approved GitHub scope. Never claim that
+unseen repositories do not exist.
+
 ## First: choose the mode from live GitHub
 
 Enumerate the complete visible repository set before deciding the mode.

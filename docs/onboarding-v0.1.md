@@ -7,6 +7,28 @@ contains the required evidence.
 The canonical machine-readable entry point is `onboarding/contract.yaml`. AI clients
 may use `skills/bootstrap-instance/SKILL.md` as the portable execution guidance.
 
+## Permission ladder
+
+Onboarding should request the **least access necessary**.
+
+1. **Explore** — read only. Inspect public repositories or only the repositories the
+   user approved. Do not create, edit, or delete anything.
+2. **Connect** — write only to one private Truthrail instance so durable routing and
+   context can be stored. For strict least privilege, the user may pre-create this
+   empty private repository and grant write access only to it. Project repositories
+   may remain read-only and may be added gradually.
+3. **Operate** — optional. Add write-capable project/infrastructure capabilities later,
+   one target and one reviewed capability at a time.
+
+Full-account GitHub write access is not required.
+
+Repository selection and permission controls vary by GitHub connection/provider. When
+fine-grained private-repository selection is unavailable, a user may start with public
+repository URLs and connect private repositories later.
+
+A `verified` or `partial` receipt is complete **within the GitHub scope the user
+approved**. It must not imply visibility into repositories outside that scope.
+
 ## Choose the onboarding mode
 
 There are two user-facing cases.
