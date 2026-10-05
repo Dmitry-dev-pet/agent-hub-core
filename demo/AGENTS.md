@@ -1,6 +1,6 @@
 # Cross-vendor demo policy
 
-This directory is a live, zero-custom-secret Agent Hub demo.
+This directory is a live, zero-custom-secret Truthrail demo.
 
 ## User goal
 
@@ -47,7 +47,7 @@ a read-back.
 ## Why this demo exists
 
 The point is not the issue. The point is that different AI hosts can discover and obey
-the same GitHub-native policy without an Agent Hub-specific connector, daemon, agent
+the same GitHub-native policy without a Truthrail-specific connector, daemon, agent
 runtime, workflow, MCP gateway, or custom secret.
 
 The chat is the interface. GitHub is authoritative state. Executed is not verified.

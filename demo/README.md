@@ -1,10 +1,10 @@
-# Cross-vendor Agent Hub demo
+# Cross-vendor Truthrail demo
 
-This is a deliberately tiny public proof of the Agent Hub model:
+This is a deliberately tiny public proof of the Truthrail model:
 
 > one GitHub-native policy, multiple AI chats, the same real operation.
 
-No Agent Hub-specific connector, server, daemon, workflow, coding agent, MCP gateway,
+No Truthrail-specific connector, server, daemon, workflow, coding agent, MCP gateway,
 or custom secret is required.
 
 ## The operation
@@ -22,7 +22,7 @@ public receipt issue.
 Give ChatGPT access to the repository through its normal GitHub connection, then send:
 
 ```text
-Use the Agent Hub demo policy in demo/AGENTS.md.
+Use the Truthrail demo policy in demo/AGENTS.md.
 Record one public demo entry.
 Client: chatgpt.
 Follow demo/control-plane.json exactly.
@@ -36,7 +36,7 @@ Give Grok access to the same repository through its normal GitHub connection, th
 send:
 
 ```text
-Use the Agent Hub demo policy in demo/AGENTS.md.
+Use the Truthrail demo policy in demo/AGENTS.md.
 Record one public demo entry.
 Client: grok.
 Follow demo/control-plane.json exactly.
@@ -55,7 +55,7 @@ AI chat
   -> normal GitHub connection
   -> reads demo/AGENTS.md
   -> reads demo/control-plane.json
-  -> creates [agent-hub-demo] <client> issue
+  -> creates [agent-hub-demo] <client> issue (legacy v0.1 trigger name)
   -> re-reads that issue
   -> verifies title + body
 ```
@@ -90,5 +90,5 @@ ChatGPT or Grok.
 - L1 direct GitHub mutation is the lowest sufficient level;
 - execution is not accepted until the issue is read back.
 
-This demo is intentionally smaller than a full Agent Hub instance. It isolates the
+This demo is intentionally smaller than a full Truthrail instance. It isolates the
 cross-vendor property so it can be understood in under a minute.
