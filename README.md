@@ -118,7 +118,7 @@ A minimal user request can be:
 
 ```text
 Onboard my GitHub account with Truthrail.
-Use the Truthrail bootstrap skill from Dmitry-dev-pet/truthrail-core.
+Use the Truthrail bootstrap skill from OWNER/truthrail-core.
 Do not ask me to list repositories or write YAML when GitHub can provide the evidence.
 Do not copy secret values.
 After onboarding, verify fresh-session recovery.
