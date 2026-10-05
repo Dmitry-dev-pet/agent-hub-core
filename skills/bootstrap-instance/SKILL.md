@@ -19,6 +19,8 @@ Use the least privilege available in the current GitHub connection.
   read-only, no mutations.
 - Move to **Connect** only after the user wants persistence: create/update one private
   Truthrail instance; do not require write access to project repositories.
+- Prefer a user-precreated empty private Truthrail repository when that avoids broader
+  account-level repository-creation permission.
 - Move to **Operate** only when the user asks for actions: enable write-capable
   permissions/control planes for the specific project or service that needs them.
 
