@@ -38,6 +38,7 @@ phases:
 rules:
   minimize_permissions: true
   full_account_write_required: false
+  support_user_precreated_instance_repository: true
   read_only_first: true
   respect_user_approved_repository_scope: true
   do_not_claim_visibility_outside_approved_scope: true
