@@ -5,8 +5,8 @@
 **One source of truth. Any AI.**
 
 > **Developer preview.** Truthrail is currently an open protocol and reference
-> implementation. The repository is usable from a source checkout; a packaged
-> end-user installer is not published yet.
+> implementation. Normal onboarding is chat-first: no local install, CLI, or
+> always-on computer is required.
 
 **Keep using your AI chat. Make the chat disposable.**
 
@@ -104,82 +104,36 @@ action, verifies it by reading it back, and only then completes the run.
 The bundled deterministic conformance harness also proves fresh-session recovery
 without conversation memory.
 
-## Developer setup
+## Getting started
 
-There is no packaged end-user installer yet. From a source checkout:
+For normal use, **do not install anything locally**.
 
-```bash
-python -m pip install -e .
+1. Connect GitHub to your AI chat.
+2. Give the chat access to your GitHub account and this public Truthrail Core repository.
+3. Ask it to read `skills/bootstrap-instance/SKILL.md` and onboard your GitHub account.
+4. Let it perform `DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT`.
+5. Open a completely fresh chat and verify recovery from the durable Truthrail state.
+
+A minimal user request can be:
+
+```text
+Onboard my GitHub account with Truthrail.
+Use the Truthrail bootstrap skill from OWNER/truthrail-core.
+Do not ask me to list repositories or write YAML when GitHub can provide the evidence.
+Do not copy secret values.
+After onboarding, verify fresh-session recovery.
 ```
 
-For development:
+The onboarding agent should discover the complete visible repository set, read live
+repository evidence, preserve ambiguity instead of guessing, build or update the
+user's private Truthrail instance, and produce a verified/partial/blocked onboarding
+receipt.
 
-```bash
-python -m pip install -e ".[dev]"
-```
+**No terminal step is part of the normal onboarding path.**
 
-## CLI
-
-`truthrail` is the preferred CLI name. The legacy `agent-hub-core` command remains an alias for v0.1 compatibility.
-
-Validate a WorkPacket:
-
-```bash
-truthrail validate \
-  --kind work_packet \
-  examples/v0.1/work-packet.json
-```
-
-Check every bundled schema:
-
-```bash
-truthrail check-schemas
-```
-
-Run the deterministic v0.1 conformance scenario:
-
-```bash
-truthrail conformance
-```
-
-Compare the explicit authority surface of two reviewed control-plane contracts:
-
-```bash
-truthrail capability-diff before-control-plane.json after-control-plane.json
-```
-
-Use `--format json` for machine-readable output. CI may opt into
-`--fail-on-expansion`; the default command is advisory and never executes either
-contract.
-
-Evaluate the portable default policy:
-
-```bash
-truthrail capability-policy before-control-plane.json after-control-plane.json
-```
-
-The default v1 policy emits `PASS`, `REVIEW`, or `BLOCK`. It blocks only narrow
-boundary removals (new AI-routable operations, enabling agent routing on an existing
-operator-only operation, or removing an explicit human gate). Other authority
-expansions require review. CI can enforce only `BLOCK` with
-`--fail-on block`, or require a clean `PASS` with `--fail-on review`.
-
-Evaluate runtime admission before an operation reaches credential-bearing or
-consequential execution:
-
-```bash
-truthrail admit-operation control-plane.json \
-  --operation deploy \
-  --actor example-owner \
-  --owner example-owner \
-  --route agent \
-  --require-admit
-```
-
-Runtime admission emits `ADMIT`, `REQUIRE_HUMAN`, or `DENY` from the live
-reviewed operation contract. It verifies requester policy and agent routability, fails
-closed when admission metadata is absent, and records deterministic contract/operation
-SHA-256 digests. Provider interaction and post-execution review remain separate gates.
+Low-level CLI commands still exist for protocol validation, CI, conformance tests, and
+reference-implementation maintenance, but they are not the product onboarding
+interface.
 
 ## Python API
 
