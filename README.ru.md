@@ -4,375 +4,149 @@
 
 **Один источник истины. Любой ИИ.**
 
-> **Developer preview.** Сейчас Truthrail — это открытый протокол и эталонная
-> реализация. Обычный onboarding идёт прямо через чат: локальная установка, CLI
-> и постоянно включённый компьютер не требуются.
+Truthrail позволяет оставить ChatGPT обычным интерфейсом, а устойчивое состояние
+работы хранить вне чата.
 
-**Продолжайте пользоваться привычным AI-чатом. Сами сессии могут быть одноразовыми.**
-
-Truthrail позволяет новой AI-сессии восстановить незавершённую работу из устойчивого
-внешнего состояния, выбрать для следующего шага минимально необходимую capability и
-проверить результат по живой системе, а не доверять памяти разговора.
+Чат может закончиться. Новый чат может продолжить работу.
 
 ```text
 ChatGPT / другой AI-чат
           │
           ▼
       Truthrail
-   ┌──────┼────────┐
-   ▼      ▼        ▼
- GitHub  проверенные  эфемерные /
- live    control      machine-bound
- state   planes       executors
+          │
+   ┌──────┼─────────┐
+   ▼      ▼         ▼
+ GitHub   control   дополнительные
+ live     planes    executors
+ state
 ```
 
-Сам Truthrail **не требует** постоянного центрального agent daemon или всегда
-включённого локального компьютера. Machine-bound capabilities можно подключать только
-там, где задаче действительно нужен конкретный компьютер, GPU, GUI-приложение или
-локальный asset.
-
-Базовые правила намеренно короткие:
-
-- чат — это пользовательский интерфейс, а не источник истины;
-- живое состояние целевых систем важнее cache и состояния разговора;
-- устойчивая идентичность задачи переживает полностью новую сессию чата;
-- привилегированные действия остаются внутри проверенных и ограниченных capability contracts;
-- успешное выполнение ещё не означает завершение: требуемый результат должен быть проверен.
-
-> Ранее проект назывался **Agent Hub Core**. Технические идентификаторы v0.1
-> (`agent-hub-core`, `agent_hub_core`, `.agent-hub/` и существующие schema IDs)
-> продолжают поддерживаться на время переименования.
-
-Версия: **0.1.1**
-
-## Базовая модель
-
-```text
-GitHub/live systems are authoritative state.
-Chat is the interface.
-Use the lowest sufficient execution level.
-Privileged operations come from live reviewed contracts.
-Executed does not mean verified.
-```
-
-Truthrail Core намеренно не является универсальным привилегированным agent runtime.
-Он определяет, как найти проект, получить актуальные evidence, выбрать маршрут
-выполнения, передавать работу между разными execution venues, фиксировать выполнение
-и проверять требуемый результат.
-
-## Уровни выполнения
-
-| Уровень | Назначение |
-| --- | --- |
-| L0 | Чтение/анализ по авторитетному live state |
-| L1 | Прямое изменение через connector/API |
-| L2 | Операция через проверенный control plane |
-| L3 | Эфемерный workflow/runtime |
-| L4 | Coding-agent/runtime |
-| L5 | Выполнение, привязанное к конкретной машине: GPU/GUI/local-only assets |
-
-В рамках одной попытки эскалация должна быть монотонной: переходить на следующий
-уровень только тогда, когда более низкий уровень не может обеспечить нужный результат
-или его acceptance proof.
-
-## Публичные демо
-
-Два небольших демо изолированно показывают два главных свойства.
-
-### Cross-vendor выполнение
-
-Публичная папка [`demo/`](demo/) показывает vendor-neutral модель взаимодействия
-без специального Truthrail connector:
-
-```text
-ChatGPT или Grok
-  -> обычное подключение GitHub
-  -> одна и та же demo policy
-  -> одинаковая форма публичного issue
-  -> одинаковая операция issue-create
-  -> read-back verification
-```
-
-Демо не использует пользовательские секреты, workflow runner или coding-agent
-runtime. Опубликованный контракт выбирает минимально достаточный уровень: одно прямое
-создание GitHub issue с последующим чтением обратно и проверкой.
-
-### Продолжение в новой сессии
-
-[`docs/fresh-session-demo.md`](docs/fresh-session-demo.md) содержит воспроизводимый
-сценарий из двух чатов: первый чат оставляет устойчивую незавершённую задачу, второй
-начинается без старого transcript, обновляет авторитетное состояние GitHub, выполняет
-оставшееся действие, перечитывает результат и только после этого завершает run.
-
-Встроенный deterministic conformance harness также проверяет fresh-session recovery
-без conversation memory.
+Для обычного использования **не нужно устанавливать Truthrail локально**, и не нужен
+постоянно включённый Mac или PC. Сейчас Truthrail имеет статус developer preview.
 
 ## Как начать
 
-Для обычного использования **ничего локально устанавливать не нужно**.
+Подключите GitHub к AI-чату и выберите свой сценарий.
 
-1. Подключите GitHub к AI-чату.
-2. Дайте чату доступ к своему GitHub-аккаунту и к публичному репозиторию Truthrail Core.
-3. Попросите его прочитать `skills/bootstrap-instance/SKILL.md` и выполнить onboarding GitHub-аккаунта.
-4. AI сам проходит `DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT`.
-5. После этого откройте полностью новый чат и проверьте восстановление из устойчивого состояния Truthrail.
+### 1. В GitHub уже есть репозитории
 
-Минимальный запрос пользователю достаточно сформулировать так:
+Отправьте в чат:
 
 ```text
 Подключи мой GitHub-аккаунт к Truthrail.
-Используй bootstrap skill из OWNER/truthrail-core.
-Не проси меня вручную перечислять репозитории или писать YAML, если эти данные можно получить из GitHub.
+Прочитай bootstrap skill в skills/bootstrap-instance/SKILL.md из репозитория Truthrail Core, ссылку на который я дал.
+Сам найди мои репозитории. Не проси меня перечислять их или писать YAML, если данные уже есть в GitHub.
 Не копируй значения секретов.
-После onboarding проверь восстановление в новой сессии.
+После настройки проверь, что полностью новый чат может восстановить то же состояние Truthrail.
 ```
 
-Onboarding-агент должен сам обнаружить полный набор доступных репозиториев, прочитать
-живые repository evidence, не угадывать неоднозначные связи, создать или обновить
-приватный Truthrail instance пользователя и сформировать onboarding receipt со статусом
-`verified`, `partial` или `blocked`.
+Дальше Truthrail должен сам:
 
-**Терминал не является частью обычного onboarding.**
+1. найти все доступные репозитории GitHub-аккаунта;
+2. прочитать достаточно живых данных, чтобы понять проекты и очевидные связи;
+3. создать или обновить **один приватный Truthrail instance** для аккаунта;
+4. записать маршрутизацию проектов, устойчивый контекст, capabilities и metadata
+   credentials **без значений секретов**;
+5. проверить получившуюся конфигурацию;
+6. неоднозначные связи записать как unresolved, а не угадывать;
+7. проверить восстановление из полностью новой сессии.
 
-Низкоуровневые CLI-команды остаются только для проверки протокола, CI, conformance
-tests и обслуживания reference implementation. Это не пользовательский интерфейс
-Truthrail.
+Пользователь не должен вручную поддерживать список репозиториев или YAML-конфиги.
 
-## Python API
+### 2. GitHub новый и пустой
 
-```python
-from agent_hub_core import validate_document
-
-plan = {
-    "version": 1,
-    "project": "demo-app",
-    "selected_level": "L1",
-    "reason": "A direct API mutation is sufficient.",
-    "capability": "github",
-    "acceptance_proof": ["updated state is visible from the authoritative API"],
-}
-
-validate_document("execution_plan", plan)
-```
-
-## Документы протокола
-
-v0.1 включает executable JSON Schemas для:
-
-- WorkPacket
-- HandoffPacket
-- ExecutionPlan
-- ExecutionReceipt
-- VerificationResult
-- lifecycle transitions
-- reviewed control-plane contracts
-- onboarding receipts
-- capability readiness snapshots
-- capability activation receipts
-- capability policy decisions
-
-См. `docs/protocol-v0.1.md` и `examples/v0.1/`.
-
-### Непрерывность работы v0.2
-
-v0.2 — дополнительный continuity layer для chat-first операторов. WorkPacket становится
-устойчивым корневым work order для одного результата, явно разрешённого пользователем.
-Шесть continuity documents несут один стабильный `run_id`, WorkPacket фиксирует
-source channel и approval policy, а lifecycle может остановиться в
-`waiting_approval` до начала выполнения.
-
-v0.1 остаётся неизменным и по-прежнему используется по умолчанию для совместимости.
-Включить v0.2:
-
-```bash
-truthrail validate --schema-version 0.2 --kind work_packet work-packet.json
-```
-
-Python-клиенты могут использовать `validate_run_bundle()`, чтобы отвергать наборы
-документов с разными run IDs до начала выполнения или handoff. См.
-`docs/protocol-v0.2.md`.
-
-## Проверенные control planes
-
-Привилегированная capability указывает на живой operation contract репозитория-владельца,
-а не копирует список команд в центральный registry.
-
-```yaml
-id: repo-admin
-kind: reviewed_control_plane
-operations_contract:
-  provider: github
-  repo: example-org/repo-admin
-  path: control-plane.json
-execution_levels: [L2]
-```
-
-Операция доступна AI router только если owning contract явно содержит
-`agent_routable: true`. Operator-only или legacy operations могут оставаться в
-контракте, не становясь доступными AI.
-
-Control-plane operation также может явно описывать свою authority surface:
-`credential_refs`, `execution_level`, `runtime_auth`, `execution_venue`,
-`github_permissions`, `network_destinations`, `external_side_effects`,
-`cost_ceiling` и `human_gate`. Truthrail capability diff сравнивает только эти
-объявленные поля; он не выводит привилегии из описаний и не просит LLM судить diff.
-Такие расширения, как `read -> write`, новая credential reference, новый внешний
-side effect, более высокий cost ceiling в тех же единицах или удаление human gate,
-фиксируются детерминированно.
-
-Runtime admission объявляется отдельно объектом `admission` с полями `mode`
-(`automatic`, `manual_approval`, `provider_interaction` или `operator_only`)
-и requester policy. Это намеренно отделено от `human_gate`, который может описывать
-более позднюю границу review.
-
-Machine-readable default policy находится в `capabilities/policy-v1.yaml`. Policy
-evaluation детерминирована и использует только capability diff; LLM judgment и secret
-values в ней не участвуют.
-
-## Подключение существующей инфраструктуры
-
-Основной продуктовый сценарий — не пустой аккаунт, а уже существующий GitHub account
-с репозиториями, workflows, старыми экспериментами, project families и неоднозначными
-связями.
-
-Переносимый onboarding protocol:
+Тогда отправьте:
 
 ```text
-DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT
+Мой GitHub-аккаунт новый, проектных репозиториев пока нет.
+Настрой для меня greenfield Truthrail.
+Не придумывай проекты.
+Создай один приватный репозиторий Truthrail с пустым списком проектов, базовыми GitHub capabilities и без значений секретов.
+Проверь его и затем убедись из полностью новой сессии, что пустое состояние Truthrail восстанавливается.
 ```
 
-Клиент должен обнаружить полный набор видимых репозиториев, сохранить каждый
-репозиторий, нормализовать только связи с высокой уверенностью, фиксировать
-неоднозначности вместо догадок, собрать и проверить Truthrail instance, а затем доказать
-fresh-session recovery.
+В этом случае Truthrail начинает с:
 
-Machine-readable `onboarding_receipt` имеет три результата:
+- одного приватного репозитория Truthrail;
+- пустого списка проектов;
+- базовых GitHub capabilities;
+- отсутствия скопированных значений credentials;
+- отсутствия придуманного project context.
 
-- `verified` — inventory полный, нерешённых элементов нет, fresh recovery прошёл;
-- `partial` — состояние полное и восстанавливаемое, но остаются явно отмеченные
-  semantic ambiguities;
-- `blocked` — не удалось надёжно подтвердить полноту/build/validation/recovery.
-
-Единая machine-readable точка входа — `onboarding/contract.yaml`. См. также
-`docs/onboarding-v0.1.md` и `skills/bootstrap-instance/SKILL.md`.
-
-## Постепенная активация capabilities
-
-Базовый onboarding и включение дополнительных capabilities — разные lifecycles.
-
-Truthrail instance может быть полностью verified, пока дополнительные capabilities
-находятся в состояниях:
+Когда позже появится первый настоящий репозиторий, достаточно сказать:
 
 ```text
-ready     — полностью доступна
-degraded  — доступна с явно описанными ограничениями
-dormant   — известна и может быть активирована, но сейчас выключена
-blocked   — запрошенную активацию сейчас нельзя выполнить или проверить
+Обнови Truthrail и подключи всё новое, что появилось в моём GitHub.
 ```
 
-Machine-readable точка входа — `capabilities/contract.yaml`.
+Truthrail должен обновить существующий instance, а не создавать второй.
 
-Если запрошенный результат требует capability не в состоянии `ready`, клиент должен
-определить минимальные prerequisites, выполнить все безопасные неинтерактивные шаги,
-остановиться ровно на требуемом провайдером human action, а затем проверить реальную
-capability до формирования `capability_activation_receipt`.
+## Что дальше?
 
-Отсутствие необязательных capabilities не делает проверенный Truthrail onboarding
-невалидным.
+Дальше работа идёт в обычном чате.
 
-См. `docs/capability-activation-v0.1.md` и
-`skills/activate-capability/SKILL.md`.
-
-## Bootstrap без пользовательских секретов
-
-Новый instance не требует PAT, API key, SSH key или другого пользовательского секрета:
-
-```bash
-truthrail init --owner example-org \
-  --project example-org/public-repo-one \
-  --project example-org/public-repo-two
-
-truthrail validate-instance
-truthrail doctor
-```
-
-Созданная директория `.agent-hub/` содержит:
+Например:
 
 ```text
-.agent-hub/
-├── agent-hub.yaml
-├── projects.yaml
-├── capabilities.yaml
-├── credentials.yaml
-└── context/
+Альфред, продолжай.
 ```
 
-Начальный `credentials.yaml` содержит пустой `credential_routes`. Capabilities по
-умолчанию: публичное чтение GitHub (L0), необязательный ambient connected GitHub access
-(L0/L1) и GitHub Actions с provider-managed `GITHUB_TOKEN` (L3).
-Пользовательские секреты не создаются и не запрашиваются.
+Новая сессия может найти через Truthrail текущую незавершённую работу, обновить live
+state GitHub/control planes, продолжить выполнение, проверить результат и только потом
+закрыть run.
 
-`doctor` использует публичный GitHub API без заголовка Authorization для проверки
-публичных репозиториев. Для deterministic или air-gapped проверки используйте
-`doctor --offline`.
+Старый текст разговора не считается авторитетным текущим состоянием.
 
-Привилегированные L2 capabilities подключаются отдельно. Добавляйте такую capability
-только когда существует её reviewed control plane; metadata может назвать provider
-secret store, но само значение секрета остаётся вне Truthrail.
+## Что хранит Truthrail
 
-CI также запускает:
+Truthrail может хранить:
 
-```bash
-truthrail bootstrap-acceptance
-```
+- маршрутизацию проектов и aliases;
+- устойчивые цели, решения и ограничения;
+- metadata capabilities;
+- **имена/scopes/routes** credentials, но не значения секретов;
+- устойчивое состояние work/run;
+- ссылки на авторитетные live systems.
 
-Этот тест создаёт новый instance с пятью репозиториями во временной директории,
-проверяет, что пользовательские credentials не требуются, запускает offline doctor и
-завершает protocol conformance.
+Актуальные ветки, PR, Actions, deployments и runtime status должны перечитываться из
+живой системы.
 
-## Конфигурация instance
+## Чем Truthrail не является
 
-Core не зависит от конкретного пользователя. Установка задаёт собственный project
-inventory, aliases, capability pointers, credential metadata и durable context.
-Обезличенный пример находится в `examples/instance/`.
+Truthrail — это не:
 
-Значения **секретов** находятся вне протокола. В Truthrail instance могут храниться
-только их names, scopes, stores и безопасные consumer routes.
-
-## Conformance
-
-Эталонный сценарий проверяет:
-
-1. разрешение проекта из fresh natural-language запроса;
-2. hydration из authoritative live-state fixtures;
-3. L0 read routing;
-4. L1 direct mutation routing;
-5. L2 reviewed control-plane routing;
-6. отклонение operator-only операции;
-7. переход к L3 runtime только когда это действительно требуется;
-8. выбор L4/L5;
-9. проверку WorkPacket и HandoffPacket;
-10. правило `executed != verified`;
-11. проверку acceptance proof;
-12. fresh-session recovery без conversation memory.
-
-Reference adapter использует deterministic in-memory fixtures. Это conformance harness,
-а не production privileged executor.
-
-## Переносимые skills
-
-Generic agent-facing instructions находятся в `skills/`. Они сохраняют те же правила
-source precedence, live contracts, lowest-sufficient-level, credential boundaries и
-verification, не завися от конкретного AI vendor.
-
-## Что Truthrail не пытается делать
-
-- собственная закрытая task database;
-- постоянный центральный agent daemon;
+- отдельное приложение для чата;
+- постоянно работающий центральный agent daemon;
 - secret manager;
 - универсальный remote shell;
-- обязательное использование coding agent;
-- замена GitHub Issues, pull requests, Actions или provider APIs.
+- требование держать компьютер постоянно включённым.
+
+Machine-bound executor можно подключить отдельно, если конкретной задаче действительно
+нужен определённый компьютер, GPU, GUI-приложение или локальный asset.
+
+## Публичные демо
+
+- [Продолжение в новой сессии](docs/fresh-session-demo.md) — начать работу в одном
+  чате и закончить в другом без передачи старого transcript.
+- [Cross-vendor GitHub demo](demo/) — разные AI-чаты выполняют одну и ту же
+  GitHub-native policy и одинаково проверяют результат.
+
+## Техническая документация
+
+Основной пользовательский путь — через чат. CLI и Python API нужны reference
+implementation и CI, а не для onboarding пользователя.
+
+- [Onboarding protocol](docs/onboarding-v0.1.md)
+- [Work continuity v0.2](docs/protocol-v0.2.md)
+- [Protocol v0.1](docs/protocol-v0.1.md)
+- [Capability activation](docs/capability-activation-v0.1.md)
+- [Security](SECURITY.md)
+- [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
+
+> Ранее проект назывался **Agent Hub Core**. Старые v0.1 идентификаторы
+> `agent-hub-core`, `agent_hub_core` и `.agent-hub/` пока поддерживаются для
+> совместимости.
 
 ## Лицензия
 

@@ -1,66 +1,88 @@
-# Agent Hub onboarding protocol v0.1
+# Truthrail onboarding protocol v0.1
 
-The onboarding protocol turns an existing GitHub account into a portable Agent Hub
-instance without requiring the user to manually inventory repositories or write YAML.
+Truthrail onboarding is chat-first. The user should not have to enumerate repositories,
+write YAML, or install a local runtime when the connected GitHub surface already
+contains the required evidence.
 
 The canonical machine-readable entry point is `onboarding/contract.yaml`. AI clients
 may use `skills/bootstrap-instance/SKILL.md` as the portable execution guidance.
 
-The primary path is **brownfield onboarding**: discover what already exists, normalize
-it into an Agent Hub instance, validate it, and prove that a fresh AI session can
-recover the same operational model from GitHub.
+## Choose the onboarding mode
 
-A **greenfield** account uses the same phases with an empty or minimal discovery set.
+There are two user-facing cases.
 
-## Phases
+### Brownfield — repositories already exist
+
+Use brownfield mode when the GitHub account already contains project repositories.
+
+The AI client should:
+
+1. discover the complete visible repository set;
+2. classify only relationships supported by evidence;
+3. create or update one private Truthrail instance;
+4. preserve ambiguous relationships as unresolved instead of guessing;
+5. validate the instance and secret-value boundary;
+6. configure a reviewed watcher when one already exists and is useful, otherwise skip it;
+7. prove fresh-session recovery.
+
+### Greenfield — the GitHub account is empty
+
+Use greenfield mode when the account has no project repositories and no existing
+Truthrail instance.
+
+The AI client should:
+
+1. confirm that the visible project repository set is empty;
+2. **not invent projects, aliases, context, or relationships**;
+3. create one private Truthrail instance for the account;
+4. write an empty project inventory plus baseline GitHub capabilities;
+5. keep credential routes empty unless a real reviewed capability requires metadata;
+6. validate the instance;
+7. prove from a completely fresh chat that the owner, empty inventory, capabilities,
+   and unresolved state can be recovered.
+
+A greenfield onboarding may be `verified` with zero projects. Zero projects is a valid
+authoritative state, not an onboarding failure.
+
+When the first real repository appears later, rerun discovery and update the **existing**
+Truthrail instance. Do not create a second instance.
+
+## Shared phases
+
+Both modes use the same lifecycle:
 
 ```text
-DISCOVER
-  -> CLASSIFY
-  -> BUILD
-  -> VALIDATE
-  -> WATCH
-  -> RECEIPT
+DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT
 ```
 
-### 1. DISCOVER
+For greenfield onboarding, CLASSIFY is intentionally a no-op when there are no projects.
 
-Enumerate every repository visible in the selected GitHub account scope.
+### DISCOVER
 
-Discovery should capture enough live metadata to support classification, such as:
+Enumerate the complete repository set visible in the selected GitHub account scope.
+Follow pagination and connector continuation until complete.
 
-- full repository name;
-- visibility;
-- archived state;
-- default branch;
-- recent activity timestamps;
-- README / AGENTS.md presence;
-- GitHub Actions workflows;
-- deployment/configuration hints visible from repository state.
+Use live GitHub evidence. Do not infer absence from one partial listing.
 
-Pagination and connector scope matter. If the client cannot establish that discovery
-is complete, onboarding cannot be `verified`.
+If discovery completeness cannot be established, onboarding cannot be `verified`.
 
-Do not infer that a repository does not exist merely because one connector call did
-not return it.
+### CLASSIFY
 
-### 2. CLASSIFY
+For brownfield accounts, build project IDs, aliases, families, and lifecycle
+observations from repository evidence such as README/AGENTS content, explicit links,
+package/deployment metadata, and reviewed configuration.
 
-Build project routes and aliases from evidence, not from conversation memory.
+Never archive, delete, rename, or change visibility during classification.
 
-Safe automatic classifications include high-confidence relationships supported by
-repository names, README/AGENTS content, explicit links, package/deployment metadata,
-or reviewed configuration.
+For greenfield accounts with no project repositories, record an empty inventory and do
+not synthesize placeholder projects.
 
-Do not archive, delete, rename, change visibility, or otherwise mutate lifecycle state
-because a repository merely looks old or experimental.
+### BUILD
 
-When two repositories may belong to one project family but evidence is ambiguous,
-record an unresolved item instead of guessing.
+If a compatible Truthrail instance already exists, update it rather than creating a
+competing source of truth.
 
-### 3. BUILD
-
-Create or update the Agent Hub instance.
+Otherwise create one dedicated private Truthrail repository or user-approved equivalent.
 
 A portable instance contains at least:
 
@@ -78,41 +100,34 @@ The default baseline can be zero-custom-secret:
 - ambient connected GitHub access at L0/L1 when available;
 - provider-managed GitHub Actions at L3.
 
-Only add a privileged reviewed control-plane capability when a live reviewed contract
-actually exists.
-
 Credential metadata may be recorded, but credential **values must never be copied**
-into the Hub, chat, issues, logs, or receipts.
+into Truthrail, chat, issues, logs, or receipts.
 
-### 4. VALIDATE
+### VALIDATE
 
-Run structural instance validation.
+Validate the instance structure, project coverage, and credential boundary.
 
-For a local checkout:
+Low-level CLI validation is an implementation option, not a user onboarding step.
+Live GitHub reads remain authoritative for freshness-sensitive facts.
 
-```bash
-agent-hub-core validate-instance .agent-hub
-agent-hub-core doctor .agent-hub --offline
-```
+For brownfield onboarding, every discovered repository must be represented before a
+receipt can be `verified` or `partial`.
 
-Use live GitHub reads to verify freshness-sensitive repository facts. Public API doctor
-checks are useful for public repositories but are not a substitute for connected access
-to private repositories.
+For greenfield onboarding, an explicitly empty project inventory satisfies coverage
+when discovery proved that no project repositories exist.
 
-### 5. WATCH
+### WATCH
 
 A watcher/reconciliation loop is optional for onboarding verification.
 
 If a reviewed watcher already exists, configure it to detect repository additions,
-removals, lifecycle changes, or other drift. Otherwise mark the phase `skipped`.
+removals, lifecycle changes, or other drift. Otherwise mark WATCH as `skipped`.
 
-A watcher is an acceleration and reconciliation mechanism, not the source of truth.
+A watcher is an acceleration mechanism, not the source of truth.
 
-### 6. RECEIPT
+### RECEIPT
 
-Produce an `onboarding_receipt` document.
-
-The receipt records:
+Produce an `onboarding_receipt` recording:
 
 - onboarding mode;
 - phase status;
@@ -123,65 +138,48 @@ The receipt records:
 - fresh-session recovery result;
 - authoritative GitHub references.
 
-Validate it with:
-
-```bash
-agent-hub-core validate \
-  --kind onboarding_receipt \
-  onboarding-receipt.json
-```
-
 ## Receipt statuses
 
 ### verified
 
-Use only when:
+Use when:
 
-- every discovered repository is represented in the Hub inventory;
-- DISCOVER, CLASSIFY, BUILD, VALIDATE, and RECEIPT completed;
+- discovery is complete;
+- the inventory exactly represents the discovered state, including a valid empty
+  inventory in greenfield mode;
+- validation passed;
 - WATCH completed or was intentionally skipped;
 - unresolved queue is empty;
-- fresh-session recovery was performed and passed;
+- fresh-session recovery passed;
 - no credential values were copied.
 
 ### partial
 
-Use when the Hub is operational and recoverable but semantic ambiguities remain.
-
-A partial receipt still requires:
-
-- every discovered repository recorded;
-- structural validation passed;
-- fresh-session recovery passed;
-- at least one explicit unresolved item.
-
-This is preferable to guessing.
+Use when the instance is complete and recoverable but explicit semantic ambiguities
+remain. This normally applies to brownfield onboarding.
 
 ### blocked
 
-Use when onboarding cannot produce a trustworthy operational instance, for example
-because repository discovery is incomplete, write access needed for the instance is
-missing, validation fails, or fresh recovery cannot be performed.
+Use when discovery completeness, instance creation/update, validation, or fresh recovery
+cannot be established.
 
 ## Fresh-session recovery
 
 Fresh recovery is the decisive portability test.
 
-Start a new AI session with no dependence on previous conversation memory. Give it only
-the GitHub account / Agent Hub entry point needed to locate the instance.
+Start a new AI session without the previous transcript. Give it only the GitHub account
+and Truthrail entry point needed to locate the instance.
 
-The fresh client must rebuild the operational model from GitHub and demonstrate that it
-can:
+The fresh client must recover:
 
-1. identify the Hub owner;
-2. load the project inventory;
-3. resolve the configured repository set;
-4. load capabilities and credential metadata without secret values;
-5. report unresolved items exactly as persisted;
-6. distinguish durable Hub metadata from freshness-sensitive live GitHub state.
+1. owner;
+2. repository inventory — including an intentionally empty inventory;
+3. project routing;
+4. capabilities;
+5. credential metadata without secret values;
+6. unresolved items.
 
-A second AI vendor is ideal but not required. The protocol tests recovery from durable
-GitHub state, not brand identity.
+It must re-read freshness-sensitive live state rather than trusting persisted narrative.
 
 ## Acceptance principle
 
@@ -193,5 +191,4 @@ validated != recoverable
 recoverable + complete + unambiguous = verified onboarding
 ```
 
-The user should not need to manually transcribe repository lists or fill configuration
-files when the connected GitHub surface already contains the required evidence.
+For a greenfield account, `complete` may legitimately mean **zero projects**.
