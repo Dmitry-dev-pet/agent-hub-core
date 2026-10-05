@@ -38,10 +38,15 @@ At this stage Truthrail should only read and explain what it sees.
 
 ### 2. Connect — one Truthrail repository
 
-If the result looks right, allow Truthrail to create or update **one private Truthrail
-repository** for durable routing/context.
+If the result looks right, Truthrail needs one private repository for durable
+routing/context.
 
-Project repositories can remain read-only.
+For the strict least-privilege path, create an empty private repository (for example
+`truthrail`) yourself and grant the AI write access **only to that repository**.
+If your GitHub connection safely supports scoped repository creation, it may create
+the repository for you instead.
+
+Project repositories can remain read-only and can be added gradually.
 
 Ask:
 
