@@ -1,119 +1,133 @@
 ---
 name: bootstrap-instance
-description: Discover an existing GitHub account and build or refresh a portable Agent Hub instance with explicit unresolved items and a verifiable onboarding receipt.
+description: Onboard an existing or empty GitHub account into one portable Truthrail instance and verify fresh-session recovery.
 ---
 
-# Bootstrap an Agent Hub instance
+# Bootstrap a Truthrail instance
 
-Use this skill when the user asks to set up, bootstrap, rebuild, or onboard an Agent
-Hub for an existing GitHub account.
+Use this skill when the user asks to set up, bootstrap, rebuild, refresh, or onboard
+Truthrail for a GitHub account.
 
-Brownfield discovery is the default. Do not assume the account is empty.
+The user should not need to manually list repositories or write YAML when GitHub already
+contains the required evidence.
 
-## Goal
+## First: choose the mode from live GitHub
 
-Turn the GitHub state the user already has into a portable Agent Hub instance that a
-fresh AI session can recover without relying on the current conversation.
+Enumerate the complete visible repository set before deciding the mode.
 
-Follow these phases in order:
+- **Brownfield:** one or more project repositories already exist, or a compatible
+  Truthrail instance already exists.
+- **Greenfield:** no project repositories exist and there is no existing Truthrail
+  instance.
+
+Do not ask the user which mode applies if live GitHub can answer it.
+
+## Brownfield goal
+
+Turn the existing GitHub state into one portable Truthrail instance that a fresh AI
+session can recover without relying on conversation history.
+
+Follow:
 
 ```text
 DISCOVER -> CLASSIFY -> BUILD -> VALIDATE -> WATCH -> RECEIPT
 ```
 
-## DISCOVER
+### DISCOVER
 
-Enumerate the complete repository set available in the selected account scope. Follow
-pagination and connector-specific continuation until complete.
+Enumerate the complete repository set. Follow pagination/continuation until complete.
 
-Use live GitHub evidence for repository metadata. Do not infer absence from one partial
-listing or a stale Hub inventory.
+Use live GitHub evidence. Do not infer absence from one partial listing or stale state.
 
-If discovery completeness cannot be established, do not issue a verified or partial
-receipt.
+### CLASSIFY
 
-## CLASSIFY
-
-Build project IDs, aliases, families, and lifecycle observations from repository
-evidence.
-
-Prefer conservative normalization:
+Build project IDs, aliases, families, and durable context only from evidence.
 
 - preserve every discovered repository;
 - group repositories only when evidence is strong;
-- never archive/delete/change visibility based on classification;
-- put ambiguous relationships in the unresolved queue.
+- never mutate repository lifecycle during classification;
+- put ambiguity in the unresolved queue instead of guessing.
 
-Do not ask the user questions that can be answered from GitHub itself.
+### BUILD
 
-## BUILD
+If a compatible Truthrail instance exists, update it.
 
-If a compatible Agent Hub already exists, update it rather than creating a competing
-source of truth.
+Otherwise create one dedicated private Truthrail repository or user-approved equivalent.
 
-Otherwise create a dedicated private Hub repository or user-approved equivalent and
-write the portable instance files.
+Record project routing, capability metadata, credential names/routes when needed, and
+durable context. Never retrieve or copy credential values.
 
-Baseline onboarding should require zero custom secrets whenever possible. Record
-credential names/routes only when needed; never retrieve or copy credential values.
+### VALIDATE
 
-Add reviewed privileged capabilities only from live reviewed contracts. Do not invent
-commands from examples or chat history.
+Validate structure, repository coverage, and credential boundaries. Use live GitHub for
+freshness-sensitive facts.
 
-## VALIDATE
+### WATCH
 
-Validate the instance structure and credential boundary.
+Configure a reviewed watcher if one already exists and is useful. Otherwise mark WATCH
+as skipped. Do not invent a new always-on service just to satisfy this phase.
 
-Use `agent-hub-core validate-instance` when available. Use live GitHub reads for
-freshness-sensitive facts. Treat public API checks as supplemental when private
-repositories are in scope.
+### RECEIPT
 
-Every discovered repository must be represented before an onboarding receipt can be
-`verified` or `partial`.
+Produce a validated onboarding receipt:
 
-## WATCH
+- `verified`: complete inventory, no unresolved items, fresh recovery passed;
+- `partial`: complete inventory and recovery passed, explicit ambiguities remain;
+- `blocked`: completeness/build/validation/recovery cannot be established.
 
-Configure an existing reviewed watcher/reconciliation loop when one is available and
-useful. Otherwise mark WATCH as `skipped`.
+## Greenfield goal
 
-Do not make onboarding depend on a new background service merely to satisfy this phase.
+Create a recoverable Truthrail instance for an account that currently has no project
+repositories.
 
-## RECEIPT
+Do **not** invent placeholder projects.
 
-Produce an `onboarding_receipt` document and validate it.
+1. DISCOVER and prove that the visible project repository set is empty.
+2. CLASSIFY as an intentional no-op.
+3. BUILD one private Truthrail instance with:
+   - empty project inventory;
+   - baseline GitHub capabilities;
+   - empty credential routes unless real capability metadata is required;
+   - empty/minimal durable context.
+4. VALIDATE the empty inventory and credential boundary.
+5. WATCH may be configured or skipped.
+6. Run fresh-session recovery.
+7. Emit `verified` when the new chat can recover the owner, empty inventory,
+   capabilities, unresolved state, and no secret values.
 
-Status rules:
+Zero projects is a valid state.
 
-- `verified`: complete inventory, no unresolved items, validation passed, fresh
-  recovery passed;
-- `partial`: complete inventory and recovery passed, but explicit unresolved items
-  remain;
-- `blocked`: completeness, build, validation, or recovery cannot be established.
-
-No receipt may claim that credential values were copied.
+When the account later gains its first project repository, refresh the existing
+Truthrail instance. Never create a second instance merely because the account changed
+from greenfield to brownfield.
 
 ## Fresh recovery
 
-Use a fresh chat/session after the Hub is built.
+Use a completely new chat/session after BUILD and VALIDATE.
 
-The recovery client should receive only the GitHub/Hub entry point, not the previous
-conversation. It must reload the Hub and reconstruct owner, repository inventory,
-project routing, capabilities, credential metadata, and unresolved items from GitHub.
+Do not pass the previous transcript or a hand-written summary.
 
-Prefer a second AI vendor when convenient, because that additionally demonstrates
-vendor portability, but same-vendor fresh-session recovery is sufficient for protocol
-verification.
+The recovery client should locate the Truthrail instance from GitHub and reconstruct:
+
+- owner;
+- repository inventory, including an intentional empty inventory;
+- project routing;
+- capabilities;
+- credential metadata without secret values;
+- unresolved items.
+
+Refresh live GitHub before making freshness-sensitive claims.
 
 ## Completion report
 
-Report:
+Report only what matters to the user:
 
+- onboarding mode: brownfield or greenfield;
 - repositories discovered / recorded;
-- project families;
-- capabilities;
-- unresolved count and questions;
-- watcher completed or skipped;
-- fresh-recovery client and result;
-- receipt status and authoritative references.
+- unresolved count;
+- watcher configured or skipped;
+- fresh recovery result;
+- receipt status.
 
-Do not report onboarding as verified when only the Hub repository was created.
+Do not report onboarding as verified when only the Truthrail repository was created and
+fresh recovery was not proven.
