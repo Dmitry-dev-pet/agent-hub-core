@@ -121,7 +121,7 @@ runtime. Опубликованный контракт выбирает мини
 
 ```text
 Подключи мой GitHub-аккаунт к Truthrail.
-Используй bootstrap skill из Dmitry-dev-pet/truthrail-core.
+Используй bootstrap skill из OWNER/truthrail-core.
 Не проси меня вручную перечислять репозитории или писать YAML, если эти данные можно получить из GitHub.
 Не копируй значения секретов.
 После onboarding проверь восстановление в новой сессии.
