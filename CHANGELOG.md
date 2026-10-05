@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- clarify public developer-preview positioning: AI chat as interface, disposable sessions, durable external state, and no required always-on local computer;
+- add a reproducible two-chat fresh-session continuity demo and refresh public Truthrail naming/CLI examples;
+
 - add additive work continuity v0.2 schemas with stable `run_id` across WorkPacket, plan, receipt, verification, handoff, and lifecycle documents;
 - add source-channel and approval-policy metadata plus waiting/rejected/failed/cancelled lifecycle outcomes;
 - add mixed-run bundle validation and explicit CLI schema-version selection while preserving v0.1 defaults;
