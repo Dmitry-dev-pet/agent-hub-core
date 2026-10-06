@@ -4,6 +4,15 @@
 
 - No unreleased changes yet.
 
+## 0.3.0 — 2026-10-07
+
+- define explicit assistant / private-instance / Core / capability boundaries;
+- add the canonical Python namespace `truthrail_core`;
+- keep `agent_hub_core` as a compatibility namespace backed by the same implementation;
+- route the preferred `truthrail` CLI through the canonical namespace while preserving the legacy `agent-hub-core` command;
+- quarantine legacy Agent Hub naming to compatibility surfaces instead of creating new implementation paths;
+- keep protocol schema 0.2 and the `executed -> verifying -> verified` lifecycle unchanged.
+
 ## 0.2.0 — 2026-10-06
 
 - release the public package as Truthrail Core 0.2.0;
