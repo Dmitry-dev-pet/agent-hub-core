@@ -19,7 +19,7 @@ Use the least privilege available in the current GitHub connection.
   read-only, no mutations.
 - Move to **Connect** only after the user wants persistence: create/update one private
   Truthrail instance; do not require write access to project repositories.
-- Prefer a user-created private repository from a dedicated Truthrail starter template when available;
+- Prefer a user-created private repository from `Dmitry-dev-pet/truthrail-starter` when available;
   otherwise prefer a user-precreated empty private repository. A public fork is not the
   private instance.
 - After Connect, allow the user to choose an optional assistant name. Record identity in a
