@@ -5,7 +5,7 @@ interface: chat
 
 skills:
   bundle: truthrail-default-assistant
-  source_repository: Dmitry-dev-pet/truthrail-core
+  source_repository: configured/truthrail-core
   source_protocol: "0.2"
   enabled:
     - rebuild-context
