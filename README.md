@@ -42,7 +42,7 @@ If the result looks right, Truthrail needs one private repository for durable
 routing/context.
 
 The preferred least-privilege path is to create your own private `truthrail`
-repository from the public Truthrail Core template when that option is available.
+repository from a small Truthrail starter template when that option is available.
 If template creation is unavailable, create an empty private repository manually.
 Then grant the AI write access **only to that repository**.
 
