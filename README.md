@@ -77,7 +77,8 @@ Record the assistant profile, then verify that a fresh chat can recover both the
 ```
 
 The name is not a permission boundary. Renaming the assistant never grants or removes
-capabilities.
+capabilities. Assistant profiles name portable skills by stable skill ID; they do not need
+to know the physical plugin path used by a particular host.
 
 A new assistant also receives the portable default skill bundle:
 
@@ -172,6 +173,30 @@ passes verification. A durable run may also keep a compact resume checkpoint, wh
 optional Truthrail Watch advisories can flag stale lifecycle metadata without changing it
 automatically.
 
+## Architecture boundary
+
+Truthrail keeps four concerns separate:
+
+```text
+assistant profile -> private Truthrail instance -> Truthrail Core -> capabilities/control planes
+```
+
+The assistant profile owns behavior and skill IDs. The private instance owns user-specific
+durable state. Core owns portable protocol/skills/routing mechanism. Concrete capabilities
+own their live operation contracts. See [Truthrail boundaries v0.3](docs/boundaries-v0.3.md).
+
+## Python API and compatibility
+
+New Python code should import `truthrail_core`:
+
+```python
+from truthrail_core import ReferenceAdapter, validate_document
+```
+
+The legacy `agent_hub_core` namespace and `agent-hub-core` CLI remain supported during
+the compatibility window and point to the same implementation. The preferred CLI is
+`truthrail`.
+
 ## What Truthrail stores
 
 Truthrail may keep:
@@ -204,6 +229,7 @@ Truthrail is not:
 
 ## Technical reference
 
+- [Architectural boundaries v0.3](docs/boundaries-v0.3.md)
 - [Onboarding protocol](docs/onboarding-v0.1.md)
 - [Work continuity v0.2](docs/protocol-v0.2.md)
 - [Run ledger v0.2](docs/run-ledger-v0.2.md)
@@ -212,8 +238,9 @@ Truthrail is not:
 - [Security](SECURITY.md)
 - [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
 
-> Formerly **Agent Hub Core**. Legacy v0.1 identifiers such as
-> `agent-hub-core`, `agent_hub_core`, and `.agent-hub/` remain supported for compatibility.
+> Formerly **Agent Hub Core**. Legacy identifiers such as `agent-hub-core`,
+> `agent_hub_core`, and `.agent-hub/` remain supported for compatibility; new code and
+> documentation should use Truthrail names.
 
 ## License
 
