@@ -1,6 +1,6 @@
-"""Portable protocol and reference implementation for Agent Hub Core."""
+"""Legacy-compatible implementation namespace for Truthrail Core.\n\nNew code should import ``truthrail_core``. This namespace remains supported so\nexisting Agent Hub Core consumers continue to work during the rename.\n"""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 from .admission import evaluate_operation_admission, format_operation_admission_markdown
 from .capability_diff import diff_control_planes, format_capability_diff_markdown
