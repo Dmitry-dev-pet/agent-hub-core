@@ -1,6 +1,6 @@
 """Portable protocol and reference implementation for Agent Hub Core."""
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 from .admission import evaluate_operation_admission, format_operation_admission_markdown
 from .capability_diff import diff_control_planes, format_capability_diff_markdown
