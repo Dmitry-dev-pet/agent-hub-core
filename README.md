@@ -36,17 +36,19 @@ Show me what projects and relationships you can infer, and clearly mark anything
 
 At this stage Truthrail should only read and explain what it sees.
 
-### 2. Connect — one Truthrail repository
+### 2. Connect — one private Truthrail repository
 
 If the result looks right, Truthrail needs one private repository for durable
 routing/context.
 
-For the strict least-privilege path, create an empty private repository (for example
-`truthrail`) yourself and grant the AI write access **only to that repository**.
-If your GitHub connection safely supports scoped repository creation, it may create
-the repository for you instead.
+The preferred least-privilege path is to create your own private `truthrail`
+repository from a small Truthrail starter template when that option is available.
+If template creation is unavailable, create an empty private repository manually.
+Then grant the AI write access **only to that repository**.
 
-Project repositories can remain read-only and can be added gradually.
+A fork of public `truthrail-core` is for developing the core, not for storing your
+private Truthrail instance. Project repositories can remain read-only and can be added
+gradually.
 
 Ask:
 
@@ -57,9 +59,40 @@ Do not copy secret values.
 Verify that a completely fresh chat can recover the same Truthrail state.
 ```
 
-### 3. Operate — optional, later
+### 3. Meet your assistant
 
-Only when you want Alfred/Truthrail to perform actions, add write-capable permissions
+Truthrail is the durable state/protocol layer. Your assistant is the chat-facing identity
+that uses it.
+
+Choose any name you like. `Alfred` is only the name used by this project's reference
+instance; your assistant can be `Nova`, `Friday`, `Ada`, or something else entirely.
+
+Ask:
+
+```text
+My assistant's name is Nova.
+Use my private Truthrail repository as durable state.
+Keep project repositories read-only unless I explicitly approve a narrower write capability.
+Record the assistant profile, then verify that a fresh chat can recover both the Truthrail state and the assistant name.
+```
+
+The name is not a permission boundary. Renaming the assistant never grants or removes
+capabilities.
+
+A new assistant also receives the portable default skill bundle:
+
+- resume/rebuild context;
+- reconstruct recent activity;
+- route to the narrowest safe capability;
+- execute an authorized action and verify it separately.
+
+Onboarding and capability activation remain separate setup/optional skills. See
+[assistant profile example](examples/assistant-profile.yaml) and
+[named assistant skills](docs/assistant-skills-v0.2.md).
+
+### 4. Operate — optional, later
+
+Only when you want your assistant/Truthrail to perform actions, add write-capable permissions
 or control planes **for the specific repositories/services that need them**.
 
 Examples:
@@ -121,11 +154,23 @@ You keep working in normal chat.
 For example:
 
 ```text
-Alfred, continue.
+Nova, continue.
 ```
 
 A fresh session can find the current durable run, refresh live GitHub/control-plane
 state, continue the work, verify the result, and close the run only after verification.
+
+Truthrail deliberately separates execution from verification:
+
+```text
+executing -> executed -> verifying -> verified
+```
+
+`executed` means the executor finished the operation. It is not success by itself.
+`verified` is the terminal lifecycle state reached only after authoritative evidence
+passes verification. A durable run may also keep a compact resume checkpoint, while
+optional Truthrail Watch advisories can flag stale lifecycle metadata without changing it
+automatically.
 
 ## What Truthrail stores
 
@@ -161,6 +206,9 @@ Truthrail is not:
 
 - [Onboarding protocol](docs/onboarding-v0.1.md)
 - [Work continuity v0.2](docs/protocol-v0.2.md)
+- [Run ledger v0.2](docs/run-ledger-v0.2.md)
+- [Truthrail Watch semantics v0.2](docs/watch-v0.2.md)
+- [Named assistant skills v0.2](docs/assistant-skills-v0.2.md)
 - [Security](SECURITY.md)
 - [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
 

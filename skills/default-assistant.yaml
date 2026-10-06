@@ -1,0 +1,26 @@
+version: 1
+id: truthrail-default-assistant
+description: Portable default skills for a named Truthrail assistant.
+
+source:
+  repository: configured/truthrail-core
+  protocol: "0.2"
+
+default_skills:
+  - rebuild-context
+  - recent-activity
+  - capability-route
+  - orchestrate-action
+
+setup_skills:
+  - bootstrap-instance
+
+optional_skills:
+  - activate-capability
+
+rules:
+  - skills describe behavior and routing; they never grant authority by themselves
+  - every mutation still requires an allowed Truthrail capability and any required approval
+  - execution and verification remain separate
+  - credential values must never be copied into an assistant profile or skill bundle
+  - a fresh session should resolve skill names against the configured Truthrail Core source

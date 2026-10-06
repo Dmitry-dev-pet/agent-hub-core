@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-hub-core"
-version = "0.1.1"
+version = "0.2.0"
 description = "Truthrail: portable GitHub-native protocol and reference implementation for AI work continuity and routing."
 readme = "README.md"
 requires-python = ">=3.11"

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- No unreleased changes yet.
+
+## 0.2.0 — 2026-10-06
+
+- release the public package as Truthrail Core 0.2.0;
+- make the execution/verification boundary explicit: `executed` is not success, and a run reaches lifecycle `verified` only after verification evidence passes;
+- document the portable GitHub run-ledger pattern with compact bounded resume checkpoints;
+- document optional Truthrail Watch lifecycle advisories as review-only signals that never authorize writes or automatic status changes;
 - clarify public developer-preview positioning: AI chat as interface, disposable sessions, durable external state, and no required always-on local computer;
 - add a reproducible two-chat fresh-session continuity demo and refresh public Truthrail naming/CLI examples;
 

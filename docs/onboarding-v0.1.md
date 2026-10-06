@@ -14,10 +14,14 @@ Onboarding should request the **least access necessary**.
 1. **Explore** — read only. Inspect public repositories or only the repositories the
    user approved. Do not create, edit, or delete anything.
 2. **Connect** — write only to one private Truthrail instance so durable routing and
-   context can be stored. For strict least privilege, the user may pre-create this
-   empty private repository and grant write access only to it. Project repositories
+   context can be stored. Prefer a user-created private repository from a small
+   Truthrail starter template when available; otherwise use an empty private repository.
+   A public fork is for core development, not private instance state. Project repositories
    may remain read-only and may be added gradually.
-3. **Operate** — optional. Add write-capable project/infrastructure capabilities later,
+3. **Name** — optionally choose a chat-facing assistant name and store a small assistant
+   profile in the private instance. The profile is identity/continuity metadata only;
+   renaming never grants or removes capabilities.
+4. **Operate** — optional. Add write-capable project/infrastructure capabilities later,
    one target and one reviewed capability at a time.
 
 Full-account GitHub write access is not required.
@@ -116,6 +120,15 @@ credentials.yaml
 context/
 ```
 
+It may also contain an assistant profile such as `assistant.yaml` with a user-selected
+name and chat role. This profile should attach the portable `truthrail-default-assistant`
+bundle by default: `rebuild-context`, `recent-activity`, `capability-route`, and
+`orchestrate-action`. Setup/optional skills remain separate.
+
+The profile must not contain secret values or redefine capability authority. Skills describe
+behavior and routing only; they do not grant permissions. It is safe to rename the assistant
+independently of permissions.
+
 The default baseline can be zero-custom-secret:
 
 - GitHub public reads at L0;
@@ -199,7 +212,8 @@ The fresh client must recover:
 3. project routing;
 4. capabilities;
 5. credential metadata without secret values;
-6. unresolved items.
+6. optional assistant profile/name and configured skill bundle when present;
+7. unresolved items.
 
 It must re-read freshness-sensitive live state rather than trusting persisted narrative.
 

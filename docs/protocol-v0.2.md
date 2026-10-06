@@ -50,6 +50,42 @@ The protocol also supports bounded terminal outcomes: `blocked`, `failed`,
 A rejection can occur only from `waiting_approval`; this prevents a free-form
 "reject" event from masquerading as an approval decision for an unbound plan.
 
+### Execution is not verification
+
+`executed` means that the selected executor or control plane reported that the planned
+operation finished. It does **not** mean that the requested outcome was accepted.
+
+After execution, the run enters `verifying`. Verification reads authoritative evidence
+and produces a `VerificationResult`. The lifecycle may enter terminal `verified` only
+when the relevant verification checks pass. A green workflow response, successful API
+call, or completed tool invocation is therefore evidence of execution, not by itself
+proof of the requested outcome.
+
+The word `verified` appears in two related places:
+
+- lifecycle state `verified` — the run is complete and accepted;
+- `VerificationResult.status = verified` — the verification document says its checks passed.
+
+These are not two lifecycle states. The verification result is the evidence that permits
+the transition from lifecycle `verifying` to lifecycle `verified`.
+
+## Durable run ledger and compact checkpoints
+
+A deployment may keep one durable coordination record per `run_id`, for example a GitHub
+issue in the user's Truthrail instance. The ledger is a coordination snapshot, not an
+authoritative copy of GitHub, deployment, or runtime state.
+
+An optional compact checkpoint may contain only `current_state`, `next_action`, and
+`blocked_by`. A resumed session must refresh authoritative references before trusting
+or executing the recorded next action. See [Run ledger v0.2](run-ledger-v0.2.md).
+
+## Optional Watch advisories
+
+Truthrail Watch may surface lifecycle/activity mismatches such as a project marked dormant
+while multiple independent recent activity signals are present. Advisories request review;
+they do not mutate lifecycle state, grant authority, or infer dormancy from silence. See
+[Watch semantics v0.2](watch-v0.2.md).
+
 ## Compatibility
 
 v0.1 schemas remain unchanged. Callers opt into the new continuity schemas with

@@ -1,0 +1,53 @@
+version: 1
+protocol_schema: "0.2"
+
+storage:
+  kind: github_issue
+  repository: example/truthrail
+  title_prefix: "[run] "
+  body_marker: truthrail-run-ledger:v1
+
+states:
+  - resolved
+  - planned
+  - waiting_approval
+  - executing
+  - executed
+  - verifying
+  - verified
+  - blocked
+  - failed
+  - rejected
+  - cancelled
+
+terminal_states:
+  - verified
+  - failed
+  - rejected
+  - cancelled
+
+checkpoint:
+  optional: true
+  fields:
+    current_state:
+      type: string
+      max_chars: 500
+    next_action:
+      type: string
+      max_chars: 300
+    blocked_by:
+      type: list[string]
+      max_items: 10
+      max_item_chars: 200
+  semantics:
+    - outcome is the run goal; do not duplicate it as a separate goal field
+    - checkpoint is a compact resume hint, not authoritative live project state
+    - refresh authoritative_refs before trusting or executing next_action
+
+rules:
+  - one durable record represents one run_id
+  - the record is a coordination snapshot, not authoritative live project state
+  - authoritative_refs must be refreshed before freshness-sensitive claims
+  - successful runs close only after lifecycle state verified
+  - approval never broadens the owning capability contract
+  - no credential values, tokens, session material, private keys, or runtime secret values
