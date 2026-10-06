@@ -3,6 +3,20 @@ name: Nova
 role: personal_ai_assistant
 interface: chat
 
+skills:
+  bundle: truthrail-default-assistant
+  source_repository: Dmitry-dev-pet/truthrail-core
+  source_protocol: "0.2"
+  enabled:
+    - rebuild-context
+    - recent-activity
+    - capability-route
+    - orchestrate-action
+  setup:
+    - bootstrap-instance
+  optional:
+    - activate-capability
+
 truthrail:
   continuity: true
   use_run_ledger: true
