@@ -127,6 +127,18 @@ Alfred, continue.
 A fresh session can find the current durable run, refresh live GitHub/control-plane
 state, continue the work, verify the result, and close the run only after verification.
 
+Truthrail deliberately separates execution from verification:
+
+```text
+executing -> executed -> verifying -> verified
+```
+
+`executed` means the executor finished the operation. It is not success by itself.
+`verified` is the terminal lifecycle state reached only after authoritative evidence
+passes verification. A durable run may also keep a compact resume checkpoint, while
+optional Truthrail Watch advisories can flag stale lifecycle metadata without changing it
+automatically.
+
 ## What Truthrail stores
 
 Truthrail may keep:
@@ -161,6 +173,8 @@ Truthrail is not:
 
 - [Onboarding protocol](docs/onboarding-v0.1.md)
 - [Work continuity v0.2](docs/protocol-v0.2.md)
+- [Run ledger v0.2](docs/run-ledger-v0.2.md)
+- [Truthrail Watch semantics v0.2](docs/watch-v0.2.md)
 - [Security](SECURITY.md)
 - [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
 
