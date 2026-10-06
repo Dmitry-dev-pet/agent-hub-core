@@ -36,17 +36,19 @@ Show me what projects and relationships you can infer, and clearly mark anything
 
 At this stage Truthrail should only read and explain what it sees.
 
-### 2. Connect — one Truthrail repository
+### 2. Connect — one private Truthrail repository
 
 If the result looks right, Truthrail needs one private repository for durable
 routing/context.
 
-For the strict least-privilege path, create an empty private repository (for example
-`truthrail`) yourself and grant the AI write access **only to that repository**.
-If your GitHub connection safely supports scoped repository creation, it may create
-the repository for you instead.
+The preferred least-privilege path is to create your own private `truthrail`
+repository from the public Truthrail Core template when that option is available.
+If template creation is unavailable, create an empty private repository manually.
+Then grant the AI write access **only to that repository**.
 
-Project repositories can remain read-only and can be added gradually.
+A fork of public `truthrail-core` is for developing the core, not for storing your
+private Truthrail instance. Project repositories can remain read-only and can be added
+gradually.
 
 Ask:
 
@@ -57,9 +59,29 @@ Do not copy secret values.
 Verify that a completely fresh chat can recover the same Truthrail state.
 ```
 
-### 3. Operate — optional, later
+### 3. Meet your assistant
 
-Only when you want Alfred/Truthrail to perform actions, add write-capable permissions
+Truthrail is the durable state/protocol layer. Your assistant is the chat-facing identity
+that uses it.
+
+Choose any name you like. `Alfred` is only the name used by this project's reference
+instance; your assistant can be `Nova`, `Friday`, `Ada`, or something else entirely.
+
+Ask:
+
+```text
+My assistant's name is Nova.
+Use my private Truthrail repository as durable state.
+Keep project repositories read-only unless I explicitly approve a narrower write capability.
+Record the assistant profile, then verify that a fresh chat can recover both the Truthrail state and the assistant name.
+```
+
+The name is not a permission boundary. Renaming the assistant never grants or removes
+capabilities. See [assistant profile example](examples/assistant-profile.yaml).
+
+### 4. Operate — optional, later
+
+Only when you want your assistant/Truthrail to perform actions, add write-capable permissions
 or control planes **for the specific repositories/services that need them**.
 
 Examples:
@@ -121,7 +143,7 @@ You keep working in normal chat.
 For example:
 
 ```text
-Alfred, continue.
+Nova, continue.
 ```
 
 A fresh session can find the current durable run, refresh live GitHub/control-plane
