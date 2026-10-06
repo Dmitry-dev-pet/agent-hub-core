@@ -14,8 +14,9 @@ Onboarding should request the **least access necessary**.
 1. **Explore** — read only. Inspect public repositories or only the repositories the
    user approved. Do not create, edit, or delete anything.
 2. **Connect** — write only to one private Truthrail instance so durable routing and
-   context can be stored. Prefer a user-created private repository from a small
-   Truthrail starter template when available; otherwise use an empty private repository.
+   context can be stored. Prefer a user-created private repository from the public
+   [Truthrail Starter](https://github.com/Dmitry-dev-pet/truthrail-starter) template;
+   otherwise use an empty private repository.
    A public fork is for core development, not private instance state. Project repositories
    may remain read-only and may be added gradually.
 3. **Name** — optionally choose a chat-facing assistant name and store a small assistant
