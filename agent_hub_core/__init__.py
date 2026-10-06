@@ -1,4 +1,8 @@
-"""Legacy-compatible implementation namespace for Truthrail Core.\n\nNew code should import ``truthrail_core``. This namespace remains supported so\nexisting Agent Hub Core consumers continue to work during the rename.\n"""
+"""Legacy-compatible implementation namespace for Truthrail Core.
+
+New code should import ``truthrail_core``. This namespace remains supported so
+existing Agent Hub Core consumers continue to work during the rename.
+"""
 
 __version__ = "0.3.0"
 
