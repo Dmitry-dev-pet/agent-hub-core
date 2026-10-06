@@ -7,7 +7,7 @@ from agent_hub_core.validation import CONTINUITY_SCHEMA_FILES, SCHEMA_FILES
 
 class PackagingTests(unittest.TestCase):
     def test_version(self):
-        self.assertEqual(agent_hub_core.__version__, "0.1.1")
+        self.assertEqual(agent_hub_core.__version__, "0.2.0")
 
     def test_all_schemas_are_packaged(self):
         root = files("agent_hub_core.schemas.v0_1")
