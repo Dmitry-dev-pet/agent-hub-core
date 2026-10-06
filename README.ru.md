@@ -76,7 +76,18 @@ Truthrail — это устойчивое состояние и протокол
 ```
 
 Имя не является границей полномочий. Переименование ассистента не добавляет и не убирает
-capabilities. См. [пример профиля ассистента](examples/assistant-profile.yaml).
+capabilities.
+
+Новый ассистент получает и переносимый базовый набор навыков:
+
+- восстановить контекст и продолжить работу;
+- собрать свежую активность;
+- выбрать самый узкий безопасный capability-route;
+- выполнить разрешённое действие и отдельно проверить результат.
+
+Onboarding и активация новых capabilities остаются отдельными setup/optional навыками.
+См. [пример профиля ассистента](examples/assistant-profile.yaml) и
+[навыки именованного ассистента](docs/assistant-skills-v0.2.md).
 
 ### 4. Operate — потом и только при необходимости
 
@@ -196,6 +207,7 @@ Truthrail — это не:
 - [Work continuity v0.2](docs/protocol-v0.2.md)
 - [Run ledger v0.2](docs/run-ledger-v0.2.md)
 - [Truthrail Watch semantics v0.2](docs/watch-v0.2.md)
+- [Named assistant skills v0.2](docs/assistant-skills-v0.2.md)
 - [Security](SECURITY.md)
 - [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
 
