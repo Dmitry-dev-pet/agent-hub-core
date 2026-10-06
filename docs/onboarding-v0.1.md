@@ -121,8 +121,13 @@ context/
 ```
 
 It may also contain an assistant profile such as `assistant.yaml` with a user-selected
-name and chat role. This profile must not contain secret values or redefine capability
-authority. It is safe to rename independently of permissions.
+name and chat role. This profile should attach the portable `truthrail-default-assistant`
+bundle by default: `rebuild-context`, `recent-activity`, `capability-route`, and
+`orchestrate-action`. Setup/optional skills remain separate.
+
+The profile must not contain secret values or redefine capability authority. Skills describe
+behavior and routing only; they do not grant permissions. It is safe to rename the assistant
+independently of permissions.
 
 The default baseline can be zero-custom-secret:
 
@@ -207,7 +212,7 @@ The fresh client must recover:
 3. project routing;
 4. capabilities;
 5. credential metadata without secret values;
-6. optional assistant profile/name when configured;
+6. optional assistant profile/name and configured skill bundle when present;
 7. unresolved items.
 
 It must re-read freshness-sensitive live state rather than trusting persisted narrative.
