@@ -24,6 +24,11 @@ Use the least privilege available in the current GitHub connection.
   private instance.
 - After Connect, allow the user to choose an optional assistant name. Record identity in a
   small assistant profile without secret values and without changing capability authority.
+- Attach the portable `truthrail-default-assistant` skill bundle by default:
+  `rebuild-context`, `recent-activity`, `capability-route`, and `orchestrate-action`.
+- Keep `bootstrap-instance` as setup-only and `activate-capability` optional.
+- Skill attachment never grants authority; every mutation still follows the instance's
+  capability and approval contracts.
 - Move to **Operate** only when the user asks for actions: enable write-capable
   permissions/control planes for the specific project or service that needs them.
 
