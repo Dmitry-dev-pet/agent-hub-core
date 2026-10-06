@@ -3,7 +3,7 @@ id: truthrail-default-assistant
 description: Portable default skills for a named Truthrail assistant.
 
 source:
-  repository: Dmitry-dev-pet/truthrail-core
+  repository: configured/truthrail-core
   protocol: "0.2"
 
 default_skills:
