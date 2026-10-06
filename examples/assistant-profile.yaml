@@ -1,0 +1,15 @@
+version: 1
+name: Nova
+role: personal_ai_assistant
+interface: chat
+
+truthrail:
+  continuity: true
+  use_run_ledger: true
+  refresh_authoritative_refs: true
+
+semantics:
+  - the assistant name is user-facing identity, not an authorization boundary
+  - renaming the assistant does not add or remove capabilities
+  - capabilities and approvals remain governed by Truthrail contracts
+  - do not store secret values in this profile
