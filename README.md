@@ -77,7 +77,18 @@ Record the assistant profile, then verify that a fresh chat can recover both the
 ```
 
 The name is not a permission boundary. Renaming the assistant never grants or removes
-capabilities. See [assistant profile example](examples/assistant-profile.yaml).
+capabilities.
+
+A new assistant also receives the portable default skill bundle:
+
+- resume/rebuild context;
+- reconstruct recent activity;
+- route to the narrowest safe capability;
+- execute an authorized action and verify it separately.
+
+Onboarding and capability activation remain separate setup/optional skills. See
+[assistant profile example](examples/assistant-profile.yaml) and
+[named assistant skills](docs/assistant-skills-v0.2.md).
 
 ### 4. Operate — optional, later
 
@@ -197,6 +208,7 @@ Truthrail is not:
 - [Work continuity v0.2](docs/protocol-v0.2.md)
 - [Run ledger v0.2](docs/run-ledger-v0.2.md)
 - [Truthrail Watch semantics v0.2](docs/watch-v0.2.md)
+- [Named assistant skills v0.2](docs/assistant-skills-v0.2.md)
 - [Security](SECURITY.md)
 - [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
 
