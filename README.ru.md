@@ -127,6 +127,18 @@ Truthrail достаточно сказать:
 Новая сессия находит текущий durable run, перечитывает live state GitHub/control
 planes, продолжает работу, проверяет результат и только после verification закрывает run.
 
+Truthrail намеренно разделяет выполнение и проверку:
+
+```text
+executing -> executed -> verifying -> verified
+```
+
+`executed` означает, что исполнитель закончил операцию. Само по себе это ещё не успех.
+`verified` — конечное состояние run, в которое он переходит только после проверки
+авторитетных evidence. Для продолжения из новой сессии durable run может хранить короткий
+checkpoint, а опциональный Truthrail Watch может заметить устаревший lifecycle status, но
+не меняет его автоматически.
+
 ## Что хранит Truthrail
 
 Truthrail может хранить:
@@ -161,6 +173,8 @@ Truthrail — это не:
 
 - [Onboarding protocol](docs/onboarding-v0.1.md)
 - [Work continuity v0.2](docs/protocol-v0.2.md)
+- [Run ledger v0.2](docs/run-ledger-v0.2.md)
+- [Truthrail Watch semantics v0.2](docs/watch-v0.2.md)
 - [Security](SECURITY.md)
 - [Bootstrap skill](skills/bootstrap-instance/SKILL.md)
 
