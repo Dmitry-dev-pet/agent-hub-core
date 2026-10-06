@@ -19,8 +19,11 @@ Use the least privilege available in the current GitHub connection.
   read-only, no mutations.
 - Move to **Connect** only after the user wants persistence: create/update one private
   Truthrail instance; do not require write access to project repositories.
-- Prefer a user-precreated empty private Truthrail repository when that avoids broader
-  account-level repository-creation permission.
+- Prefer a user-created private repository from the Truthrail Core template when available;
+  otherwise prefer a user-precreated empty private repository. A public fork is not the
+  private instance.
+- After Connect, allow the user to choose an optional assistant name. Record identity in a
+  small assistant profile without secret values and without changing capability authority.
 - Move to **Operate** only when the user asks for actions: enable write-capable
   permissions/control planes for the specific project or service that needs them.
 
@@ -76,8 +79,9 @@ If a compatible Truthrail instance exists, update it.
 
 Otherwise create one dedicated private Truthrail repository or user-approved equivalent.
 
-Record project routing, capability metadata, credential names/routes when needed, and
-durable context. Never retrieve or copy credential values.
+Record project routing, capability metadata, credential names/routes when needed, durable
+context, and an optional user-named assistant profile. Never retrieve or copy credential
+values. Assistant identity is not an authorization boundary.
 
 ### VALIDATE
 
@@ -136,6 +140,7 @@ The recovery client should locate the Truthrail instance from GitHub and reconst
 - project routing;
 - capabilities;
 - credential metadata without secret values;
+- optional assistant profile/name when configured;
 - unresolved items.
 
 Refresh live GitHub before making freshness-sensitive claims.
