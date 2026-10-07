@@ -31,6 +31,16 @@ class InstanceBootstrapTests(unittest.TestCase):
             self.assertEqual(result["credential_routes"], 0)
             self.assertEqual(result["custom_credentials_required"], 0)
             self.assertEqual(result["credential_mode"], "zero-custom-secret")
+            self.assertEqual(result["instance_config"], "truthrail.yaml")
+            self.assertTrue(result["legacy_config_present"])
+
+            canonical = yaml.safe_load(
+                (root / "truthrail.yaml").read_text(encoding="utf-8")
+            )
+            legacy = yaml.safe_load(
+                (root / "agent-hub.yaml").read_text(encoding="utf-8")
+            )
+            self.assertEqual(canonical, legacy)
 
             credentials = yaml.safe_load(
                 (root / "credentials.yaml").read_text(encoding="utf-8")
@@ -48,6 +58,38 @@ class InstanceBootstrapTests(unittest.TestCase):
                 capabilities["capabilities"]["github-actions"]["authentication"],
                 "provider_managed",
             )
+
+    def test_canonical_only_instance_validates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / ".truthrail"
+            init_instance(root, owner="example-org")
+            (root / "agent-hub.yaml").unlink()
+            result = validate_instance(root)
+            self.assertEqual(result["instance_config"], "truthrail.yaml")
+            self.assertFalse(result["legacy_config_present"])
+
+    def test_legacy_only_instance_still_validates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / ".agent-hub"
+            init_instance(root, owner="example-org")
+            (root / "truthrail.yaml").unlink()
+            result = validate_instance(root)
+            self.assertEqual(result["instance_config"], "agent-hub.yaml")
+            self.assertTrue(result["legacy_config_present"])
+
+    def test_divergent_dual_instance_configs_are_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / ".truthrail"
+            init_instance(root, owner="example-org")
+            legacy_path = root / "agent-hub.yaml"
+            legacy = yaml.safe_load(legacy_path.read_text(encoding="utf-8"))
+            legacy["inventory"]["owner"] = "different-org"
+            legacy_path.write_text(
+                yaml.safe_dump(legacy, sort_keys=False),
+                encoding="utf-8",
+            )
+            with self.assertRaises(InstanceValidationError):
+                validate_instance(root)
 
     def test_doctor_offline_needs_no_custom_credentials(self):
         with tempfile.TemporaryDirectory() as tmp:
