@@ -15,6 +15,17 @@ This repository is the portable, user-agnostic Truthrail Core reference implemen
 4. Run the full CI suite.
 5. Merge only after CI is green.
 
+## Architectural boundaries
+
+- Assistant profiles own identity, goals, attention policy and skill IDs; they do not own implementation paths, runtime topology or operation contracts.
+- Private Truthrail instances own user-specific durable state and routing overlays; they must not grow a second implementation of the portable protocol.
+- Truthrail Core owns protocol schemas, semantic validation, portable skills and routing mechanism.
+- Capabilities/control planes own concrete operation contracts and verification evidence.
+- New code uses the canonical `truthrail_core` namespace. `agent_hub_core` is a compatibility namespace backed by the same implementation.
+- Compatibility aliases point to canonical behavior; do not fork logic between old and new names.
+
+See [docs/boundaries-v0.3.md](docs/boundaries-v0.3.md).
+
 ## Protocol invariants
 
 - Live target systems outrank cached or conversational state.
