@@ -26,6 +26,8 @@ SENSITIVE_VALUE_KEYS = {
     "api_key",
 }
 OPTIONAL_CREDENTIAL_STATUSES = {"optional", "optional_dormant", "disabled"}
+CANONICAL_INSTANCE_CONFIG = "truthrail.yaml"
+LEGACY_INSTANCE_CONFIG = "agent-hub.yaml"
 
 
 class InstanceValidationError(ValueError):
@@ -40,6 +42,28 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise InstanceValidationError(f"{path}: top level must be a mapping")
     return payload
+
+
+def _load_instance_config(root: Path) -> tuple[Path, dict[str, Any]]:
+    canonical_path = root / CANONICAL_INSTANCE_CONFIG
+    legacy_path = root / LEGACY_INSTANCE_CONFIG
+
+    if canonical_path.is_file():
+        canonical = _load_yaml(canonical_path)
+        if legacy_path.is_file():
+            legacy = _load_yaml(legacy_path)
+            if legacy != canonical:
+                raise InstanceValidationError(
+                    f"{canonical_path} and {legacy_path} differ; refusing split-brain instance config"
+                )
+        return canonical_path, canonical
+
+    if legacy_path.is_file():
+        return legacy_path, _load_yaml(legacy_path)
+
+    raise InstanceValidationError(
+        f"{canonical_path}: missing (legacy {LEGACY_INSTANCE_CONFIG} is also absent)"
+    )
 
 
 def _relative_path(root: Path, raw: Any, label: str) -> Path:
@@ -167,7 +191,8 @@ def init_instance(
     }
 
     managed = {
-        "agent-hub.yaml": hub,
+        CANONICAL_INSTANCE_CONFIG: hub,
+        LEGACY_INSTANCE_CONFIG: hub,
         "projects.yaml": project_config,
         "capabilities.yaml": capabilities,
         "credentials.yaml": credentials,
@@ -186,23 +211,21 @@ def init_instance(
 
 def validate_instance(target: str | Path) -> dict[str, Any]:
     root = Path(target)
-    hub_path = root / "agent-hub.yaml"
-    if not hub_path.is_file():
-        raise InstanceValidationError(f"{hub_path}: missing")
+    hub_path, hub = _load_instance_config(root)
+    hub_label = hub_path.name
 
-    hub = _load_yaml(hub_path)
     if hub.get("version") != 1:
-        raise InstanceValidationError("agent-hub.yaml: version must be 1")
+        raise InstanceValidationError(f"{hub_label}: version must be 1")
 
     inventory = hub.get("inventory")
     if not isinstance(inventory, dict) or inventory.get("provider") != "github":
         raise InstanceValidationError(
-            "agent-hub.yaml: inventory.provider must be github"
+            f"{hub_label}: inventory.provider must be github"
         )
     owner = inventory.get("owner")
     if not isinstance(owner, str) or not OWNER_RE.fullmatch(owner):
         raise InstanceValidationError(
-            "agent-hub.yaml: inventory.owner must look like a GitHub handle"
+            f"{hub_label}: inventory.owner must look like a GitHub handle"
         )
 
     projects_path = _relative_path(root, hub.get("projects"), "projects")
@@ -359,6 +382,8 @@ def validate_instance(target: str | Path) -> dict[str, Any]:
     return {
         "ok": True,
         "root": str(root),
+        "instance_config": hub_path.name,
+        "legacy_config_present": (root / LEGACY_INSTANCE_CONFIG).is_file(),
         "owner": owner,
         "projects": len(routing),
         "repositories": repositories,
