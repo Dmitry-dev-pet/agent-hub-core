@@ -17,6 +17,9 @@ setup_skills:
 
 optional_skills:
   - activate-capability
+  - attention-inbox
+  - daily-brief
+  - quota-guard
 
 rules:
   - skills describe behavior and routing; they never grant authority by themselves
