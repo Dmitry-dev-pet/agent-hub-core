@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- No unreleased changes yet.
+- add portable opt-in operator skills for actionable attention triage, bounded daily briefs, and authoritative quota/capacity warnings;
+- add CI coverage that every declared assistant skill resolves to a matching portable `SKILL.md` contract.
 
 ## 0.3.0 — 2026-10-07
 

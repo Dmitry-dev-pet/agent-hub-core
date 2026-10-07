@@ -16,6 +16,9 @@ skills:
     - bootstrap-instance
   optional:
     - activate-capability
+    - attention-inbox
+    - daily-brief
+    - quota-guard
 
 truthrail:
   continuity: true

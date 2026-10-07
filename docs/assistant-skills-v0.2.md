@@ -21,7 +21,21 @@ A newly named assistant gets four everyday skills:
 | `capability-route` | Select the narrowest safe tool/control plane without exposing credential values. |
 | `orchestrate-action` | Carry out a user-authorized action and verify the outcome separately from execution. |
 
-Two additional skills are not ordinary background powers:
+## Opt-in operator skills
+
+The same portable bundle advertises operator-oriented skills that a private instance may
+enable when they match the user's workflow:
+
+| Skill | What it enables |
+| --- | --- |
+| `attention-inbox` | Answer “what needs me?” with a quiet prioritized list of sourced items that require a decision or action. |
+| `daily-brief` | Build a bounded briefing from live schedule, attention, run, project, and quota evidence. |
+| `quota-guard` | Surface decision-relevant quota, budget, rate-limit, or capacity risk from authoritative usage evidence. |
+
+These skills remain read/triage behavior. Enabling them does not create a scheduler,
+notification channel, billing permission, mail permission, or write capability.
+
+Two other skills are not ordinary background powers:
 
 - `bootstrap-instance` is a setup/onboarding skill;
 - `activate-capability` is optional and is used only when the user asks to enable a capability that is not ready.
@@ -41,9 +55,14 @@ skills:
     - recent-activity
     - capability-route
     - orchestrate-action
+  optional:
+    - attention-inbox
+    - daily-brief
+    - quota-guard
 ```
 
-The same bundle works for Alfred, Nova, Ada, or any other name.
+The same bundle works for Alfred, Nova, Ada, or any other name. A private assistant may
+promote any advertised optional skill into its enabled list without changing authority.
 
 ## Fresh-session behavior
 
@@ -65,6 +84,7 @@ Skill selection must not:
 - bypass a reviewed control plane;
 - reveal or request credential values when a safe credential route exists;
 - turn an advisory watcher signal into automatic mutation;
+- infer deadlines, quota thresholds, or human obligations without authoritative evidence;
 - treat `executed` as `verified`.
 
 Identity and skills are portable configuration. Authority remains explicit and separately governed.
