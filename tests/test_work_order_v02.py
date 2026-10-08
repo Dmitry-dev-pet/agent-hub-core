@@ -89,48 +89,29 @@ class WorkOrderV02Tests(unittest.TestCase):
             "selected_level": "L3",
             "reason": "A workflow runtime is sufficient.",
             "capability": "github-actions",
-            "acceptance_proof": ["workflow succeeds"],
+            "acceptance_proof": ["workflow succeeds", "artifact exists"],
             "approval": {
                 "required": False,
                 "reason": "Read-only preview generation.",
                 "basis": "work_packet_policy",
             },
         }
-        receipt = {
-            "version": 2,
-            "run_id": RUN_ID,
-            "status": "executed",
-            "capability": "github-actions",
-            "approval": {"status": "not_required"},
-            "authoritative_refs": [{"type": "workflow_run", "value": "123"}],
-            "observations": ["preview rendered"],
-        }
-        verification = {
-            "version": 2,
-            "run_id": RUN_ID,
-            "status": "verified",
-            "checks": [{"name": "workflow succeeds", "passed": True}],
-            "authoritative_refs": [{"type": "workflow_run", "value": "123"}],
-        }
         self.assertEqual(
             validate_run_bundle(
                 [
                     ("work_packet", work_packet()),
                     ("execution_plan", plan),
-                    ("execution_receipt", receipt),
-                    ("verification_result", verification),
                 ]
             ),
             RUN_ID,
         )
 
-        receipt["run_id"] = "run-other"
+        plan["run_id"] = "run-other"
         with self.assertRaises(ProtocolValidationError):
             validate_run_bundle(
                 [
                     ("work_packet", work_packet()),
                     ("execution_plan", plan),
-                    ("execution_receipt", receipt),
                 ]
             )
 

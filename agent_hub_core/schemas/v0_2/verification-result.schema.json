@@ -110,6 +110,10 @@
           }
         }
       }
+    },
+    "execution_receipt_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
     }
   },
   "allOf": [
@@ -131,14 +135,24 @@
               "properties": {
                 "passed": {
                   "const": true
+                },
+                "evidence": {
+                  "minItems": 1
                 }
               },
               "required": [
-                "passed"
+                "passed",
+                "evidence"
               ]
             }
+          },
+          "authoritative_refs": {
+            "minItems": 1
           }
-        }
+        },
+        "required": [
+          "execution_receipt_digest"
+        ]
       }
     },
     {

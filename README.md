@@ -193,6 +193,14 @@ New Python code should import `truthrail_core`:
 from truthrail_core import ReferenceAdapter, validate_document
 ```
 
+Core 0.4.0 also checks complete v0.2 run snapshots with `validate_run_bundle()`.
+An executed run must connect its original WorkPacket, bound plan, receipt and exact
+acceptance evidence. A terminal `verified` transition refers to that verification by
+digest. See [execution binding and migration](docs/execution-binding-v0.2.md).
+
+These checks validate supplied records. The owning capability still authenticates
+approvals, reads the live provider, enforces permissions and handles retry safety.
+
 The legacy `agent_hub_core` namespace and `agent-hub-core` CLI remain supported during
 the compatibility window and point to the same implementation. The preferred CLI is
 `truthrail`.

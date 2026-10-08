@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-10-08
+
+- enforce v0.2 task, project, acceptance-proof, execution-ceiling, approval, capability and handoff-scope consistency across a complete run snapshot;
+- bind plans to the WorkPacket and authoritative preconditions, receipts to exact plans, verification to exact receipts, and terminal verified transitions to passing verification;
+- require evidence for every verified acceptance check and reject incomplete or duplicated run documents;
+- add explicit freshness checks that require current provider inputs, without confusing an authorized operation's post-state with stale preconditions;
+- add negative protocol tests and a local Git HEAD-change test; these do not claim full AI-host or distributed exactly-once coverage;
+- preserve v0.1 schemas and behavior; document the intentionally stricter v0.2 migration in `docs/execution-binding-v0.2.md`.
 
 - add portable opt-in operator skills for actionable attention triage, bounded daily briefs, and authoritative quota/capacity warnings;
 - add CI coverage that every declared assistant skill resolves to a matching portable `SKILL.md` contract.
