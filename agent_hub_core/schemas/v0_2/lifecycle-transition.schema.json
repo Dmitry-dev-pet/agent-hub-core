@@ -41,6 +41,28 @@
         "rejected",
         "cancelled"
       ]
+    },
+    "verification_result_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference",
+        "execution_plan_digest"
+      ],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_plan_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
     }
   },
   "oneOf": [
@@ -129,6 +151,46 @@
             "blocked"
           ]
         }
+      }
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "to": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "to"
+        ]
+      },
+      "then": {
+        "required": [
+          "verification_result_digest"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "from": {
+            "const": "waiting_approval"
+          },
+          "to": {
+            "const": "executing"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "then": {
+        "required": [
+          "approval"
+        ]
       }
     }
   ]

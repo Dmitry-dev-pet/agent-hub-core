@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from importlib.resources import files
 from pathlib import Path
@@ -108,6 +109,68 @@ def validate_document(
                 "work_packet: allowed and forbidden overlap: "
                 + ", ".join(sorted(overlap))
             )
+
+    if schema_version == "0.2" and kind == "execution_plan":
+        binding = document.get("execution_binding")
+        if isinstance(binding, dict):
+            fingerprint = binding["state_fingerprint"]
+            inputs = fingerprint["inputs"]
+            identities = [(item["kind"], item["ref"]) for item in inputs]
+            if len(identities) != len(set(identities)):
+                raise ProtocolValidationError(
+                    "execution_plan: state_fingerprint contains duplicate kind/ref identities"
+                )
+
+            normalized_inputs = sorted(
+                inputs,
+                key=lambda item: (item["kind"], item["ref"], item["value"]),
+            )
+            encoded = json.dumps(
+                {
+                    "work_packet_digest": binding["work_packet_digest"],
+                    "inputs": normalized_inputs,
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+            expected = "sha256:" + hashlib.sha256(encoded).hexdigest()
+            if fingerprint["digest"] != expected:
+                raise ProtocolValidationError(
+                    "execution_plan: state_fingerprint digest does not match inputs"
+                )
+
+            route = binding["route"]
+            route_order = {"direct": 0, "branch_pr": 1}
+            required_rank = max(
+                route_order[route["proposed"]],
+                route_order[route["policy_minimum"]],
+            )
+            if route_order[route["authorized"]] < required_rank:
+                raise ProtocolValidationError(
+                    "execution_plan: authorized route cannot be weaker than "
+                    "the proposal or policy minimum"
+                )
+
+    if schema_version == "0.2" and kind == "verification_result":
+        names = [check["name"] for check in document["checks"]]
+        if len(names) != len(set(names)):
+            raise ProtocolValidationError(
+                "verification_result: check names must be unique"
+            )
+        if document["status"] == "verified":
+            refs = {(ref["type"], ref["value"]) for ref in document["authoritative_refs"]}
+            for check in document["checks"]:
+                evidence = {(ref["type"], ref["value"]) for ref in check["evidence"]}
+                if not evidence <= refs:
+                    raise ProtocolValidationError(
+                        "verification_result: check evidence must be listed in authoritative_refs"
+                    )
+
+    if schema_version == "0.2" and kind == "handoff_packet":
+        envelope = document["execution_envelope"]
+        if set(envelope.get("allowed", [])) & set(envelope.get("forbidden", [])):
+            raise ProtocolValidationError("handoff_packet: allowed and forbidden effects overlap")
 
     if kind == "onboarding_receipt":
         unresolved = document["unresolved"]
@@ -290,23 +353,189 @@ def validate_file(
     validate_document(kind, payload, schema_version=schema_version)
 
 
+def _canonical_digest(payload: Any) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
 def validate_run_bundle(
     documents: Sequence[tuple[str, dict[str, Any]]],
 ) -> str:
+    """Validate one v0.2 run snapshot, rooted in its WorkPacket.
+
+    A snapshot contains at most one current document of each kind, including one
+    current lifecycle transition. This checks consistency and evidence references;
+    it does not fetch live state, authenticate evidence or execute operations.
+    """
     if not documents:
         raise ProtocolValidationError("run bundle must contain at least one document")
 
     run_ids: set[str] = set()
+    by_kind: dict[str, dict[str, Any]] = {}
     for kind, document in documents:
         if kind not in CONTINUITY_SCHEMA_FILES:
             raise ProtocolValidationError(
                 f"run bundle does not support document kind: {kind}"
             )
+        if kind in by_kind:
+            raise ProtocolValidationError(
+                f"run bundle contains duplicate document kind: {kind}"
+            )
         validate_document(kind, document, schema_version="0.2")
         run_ids.add(str(document["run_id"]))
+        by_kind[kind] = document
 
     if len(run_ids) != 1:
         raise ProtocolValidationError(
             "run bundle mixes run_id values: " + ", ".join(sorted(run_ids))
         )
+
+    packet = by_kind.get("work_packet")
+    plan = by_kind.get("execution_plan")
+    receipt = by_kind.get("execution_receipt")
+    verification = by_kind.get("verification_result")
+    transition = by_kind.get("lifecycle_transition")
+    handoff = by_kind.get("handoff_packet")
+
+    if packet is None:
+        raise ProtocolValidationError("run bundle requires its root WorkPacket")
+    for document, predecessor, label in (
+        (receipt, plan, "ExecutionReceipt requires its ExecutionPlan"),
+        (verification, receipt, "VerificationResult requires its ExecutionReceipt"),
+    ):
+        if document is not None and predecessor is None:
+            raise ProtocolValidationError("run bundle: " + label)
+
+    if handoff is not None:
+        if handoff["project"] != packet["project"]:
+            raise ProtocolValidationError("run bundle: HandoffPacket project mismatch")
+        if handoff["outcome"] != packet["outcome"]["description"]:
+            raise ProtocolValidationError("run bundle: HandoffPacket outcome mismatch")
+        if handoff["acceptance_proof"] != packet["acceptance_proof"]["checks"]:
+            raise ProtocolValidationError("run bundle: HandoffPacket acceptance proof mismatch")
+        envelope = packet["execution_envelope"]
+        delegated = handoff["execution_envelope"]
+        if not set(delegated["repositories"]) <= set(envelope["repositories"]):
+            raise ProtocolValidationError("run bundle: HandoffPacket broadens repositories")
+        if not set(delegated.get("allowed", [])) <= set(envelope["allowed"]):
+            raise ProtocolValidationError("run bundle: HandoffPacket broadens allowed effects")
+        if not set(envelope["forbidden"]) <= set(delegated.get("forbidden", [])):
+            raise ProtocolValidationError("run bundle: HandoffPacket drops forbidden effects")
+
+    if packet is not None and plan is not None:
+        if packet["project"] != plan["project"]:
+            raise ProtocolValidationError(
+                "run bundle: WorkPacket and ExecutionPlan project mismatch"
+            )
+        if packet["acceptance_proof"]["checks"] != plan["acceptance_proof"]:
+            raise ProtocolValidationError(
+                "run bundle: WorkPacket and ExecutionPlan acceptance proof mismatch"
+            )
+        if LEVEL_ORDER[plan["selected_level"]] > LEVEL_ORDER[packet["maximum_level"]]:
+            raise ProtocolValidationError(
+                "run bundle: ExecutionPlan selected_level exceeds WorkPacket maximum_level"
+            )
+        if packet["approval"]["policy"] == "required" and not plan["approval"]["required"]:
+            raise ProtocolValidationError(
+                "run bundle: WorkPacket requires approval but ExecutionPlan does not"
+            )
+
+        binding = plan.get("execution_binding")
+        if isinstance(binding, dict):
+            if binding["work_packet_digest"] != _canonical_digest(packet):
+                raise ProtocolValidationError(
+                    "run bundle: ExecutionPlan is bound to a different WorkPacket"
+                )
+
+    if plan is not None and receipt is not None:
+        if plan["capability"] != receipt["capability"]:
+            raise ProtocolValidationError(
+                "run bundle: ExecutionReceipt capability does not match ExecutionPlan"
+            )
+        if plan["approval"]["required"] and receipt["approval"]["status"] != "approved":
+            raise ProtocolValidationError(
+                "run bundle: approved execution is required before receipt"
+            )
+        if receipt["approval"]["status"] == "approved":
+            if receipt["approval"]["execution_plan_digest"] != _canonical_digest(plan):
+                raise ProtocolValidationError("run bundle: approval belongs to another ExecutionPlan")
+
+        effects = set(receipt.get("observed_effects", []))
+        envelope = packet["execution_envelope"]
+        if not effects <= set(envelope["allowed"]) or effects & set(envelope["forbidden"]):
+            raise ProtocolValidationError("run bundle: observed effects exceed the WorkPacket envelope")
+
+        plan_binding = plan.get("execution_binding")
+        receipt_binding = receipt.get("execution_binding")
+        if not isinstance(plan_binding, dict):
+            raise ProtocolValidationError("run bundle: executed work requires a bound ExecutionPlan")
+        if isinstance(plan_binding, dict):
+            if not isinstance(receipt_binding, dict):
+                raise ProtocolValidationError(
+                    "run bundle: bound ExecutionPlan requires a bound ExecutionReceipt"
+                )
+            if (
+                receipt_binding["state_fingerprint"]
+                != plan_binding["state_fingerprint"]["digest"]
+            ):
+                raise ProtocolValidationError(
+                    "run bundle: stale ExecutionReceipt state_fingerprint"
+                )
+            if receipt_binding["route"] != plan_binding["route"]["authorized"]:
+                raise ProtocolValidationError(
+                    "run bundle: ExecutionReceipt route does not match ExecutionPlan"
+                )
+            if receipt_binding["execution_plan_digest"] != _canonical_digest(plan):
+                raise ProtocolValidationError(
+                    "run bundle: ExecutionReceipt does not match the active ExecutionPlan"
+                )
+            if plan_binding.get("execution_venue") is not None:
+                if receipt.get("execution_venue") != plan_binding["execution_venue"]:
+                    raise ProtocolValidationError("run bundle: ExecutionReceipt venue mismatch")
+
+    if packet is not None and verification is not None:
+        required_checks = packet["acceptance_proof"]["checks"]
+        observed_checks = [item["name"] for item in verification["checks"]]
+        if verification["status"] == "verified" and observed_checks != required_checks:
+            raise ProtocolValidationError(
+                "run bundle: verified result must cover the exact WorkPacket acceptance proof"
+            )
+        if verification["status"] == "verified":
+            if verification["execution_receipt_digest"] != _canonical_digest(receipt):
+                raise ProtocolValidationError("run bundle: verification belongs to another ExecutionReceipt")
+
+    if transition is not None:
+        if plan is None and not (
+            transition["from"] == "resolved" and transition["to"] in {"blocked", "cancelled"}
+        ):
+            raise ProtocolValidationError("run bundle: lifecycle transition requires its ExecutionPlan")
+        source, target = transition["from"], transition["to"]
+        if plan is None:
+            return next(iter(run_ids))
+        if target == "executing" and not isinstance(plan.get("execution_binding"), dict):
+            raise ProtocolValidationError("run bundle: execution requires a bound ExecutionPlan")
+        if target == "waiting_approval" and not plan["approval"]["required"]:
+            raise ProtocolValidationError("run bundle: waiting_approval requires an approval gate")
+        if source == "planned" and target == "executing" and plan["approval"]["required"]:
+            raise ProtocolValidationError("run bundle: required approval cannot be skipped")
+        if source == "waiting_approval" and not plan["approval"]["required"]:
+            raise ProtocolValidationError("run bundle: approval transition requires an approval gate")
+        if source == "waiting_approval" and target == "executing":
+            approval = transition.get("approval")
+            if not approval or approval["execution_plan_digest"] != _canonical_digest(plan):
+                raise ProtocolValidationError("run bundle: execution requires approval bound to this plan")
+        if source in {"executed", "verifying"} or target in {"executed", "verifying", "verified"}:
+            if receipt is None:
+                raise ProtocolValidationError("run bundle: execution evidence is missing for this transition")
+        if target == "verified":
+            if verification is None or verification["status"] != "verified":
+                raise ProtocolValidationError("run bundle: verified transition requires passing verification")
+            if transition["verification_result_digest"] != _canonical_digest(verification):
+                raise ProtocolValidationError("run bundle: verified transition refers to another verification")
+
     return next(iter(run_ids))

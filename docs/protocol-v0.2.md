@@ -18,8 +18,11 @@ Every continuity document in v0.2 carries the same `run_id`:
 - lifecycle transition
 
 A consumer must reject a bundle that mixes run IDs. The portable helper
-`validate_run_bundle()` validates each document with the v0.2 schema and proves
-that all documents belong to one run.
+`validate_run_bundle()` validates one current snapshot rooted in the WorkPacket,
+with at most one document of each kind. In Core 0.4.0 it also checks project,
+acceptance proof, authority ceilings, approvals, execution bindings and evidence
+consistency. Matching run IDs alone do not establish authorization or completion.
+Use `validate_document()` for structural inspection of an individual document.
 
 ## Source and approval
 
@@ -31,7 +34,9 @@ WorkPacket adds:
 
 ExecutionPlan records whether approval is required and why. ExecutionReceipt records
 `not_required` or `approved`; an approved receipt must carry a reference to the
-approval evidence.
+approval evidence and the exact ExecutionPlan digest. The
+`waiting_approval -> executing` transition carries the same bound approval reference.
+The owning approval gate must authenticate this evidence; a digest is not an approval.
 
 Approval never grants generic authority. The owning capability or reviewed control
 plane still defines the exact operation and remains responsible for execution.
@@ -69,6 +74,17 @@ The word `verified` appears in two related places:
 These are not two lifecycle states. The verification result is the evidence that permits
 the transition from lifecycle `verifying` to lifecycle `verified`.
 
+For v0.2 in Core 0.4.0, verified results must cover every WorkPacket acceptance check
+exactly once in its declared order, with non-empty evidence for each check. Those
+references must also appear in `authoritative_refs`. The result carries
+`execution_receipt_digest`; the terminal transition carries
+`verification_result_digest`. Bundle validation rejects absent predecessor documents,
+changed receipts, failed verification and detached terminal transitions.
+
+Executable records are state-bound before execution. Freshness remains a separate
+provider-read responsibility. See [execution binding](execution-binding-v0.2.md) for
+the validation boundary, API, recovery rules and migration requirements.
+
 ## Durable run ledger and compact checkpoints
 
 A deployment may keep one durable coordination record per `run_id`, for example a GitHub
@@ -93,3 +109,7 @@ v0.1 schemas remain unchanged. Callers opt into the new continuity schemas with
 
 v0.2 currently extends only the six continuity document kinds. Control-plane,
 admission, onboarding, and capability schemas remain v0.1 until separately revised.
+
+Core 0.4.0 intentionally tightens v0.2 validation. Previously accepted unbound execution
+bundles or evidence-free verified records are no longer accepted as completed work.
+Historical records must not be upgraded by inventing approval or verification evidence.

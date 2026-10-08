@@ -1,0 +1,146 @@
+{
+  "work_packet": {
+    "version": 2,
+    "run_id": "run-example-001",
+    "source": {
+      "channel": "chat"
+    },
+    "created_at": "2026-10-08T00:00:00Z",
+    "project": "example-project",
+    "outcome": {
+      "description": "Publish and verify one artifact."
+    },
+    "acceptance_proof": {
+      "kind": "composite",
+      "checks": [
+        "build passes",
+        "artifact exists"
+      ]
+    },
+    "execution_envelope": {
+      "repositories": [
+        "example/project"
+      ],
+      "allowed": [
+        "build",
+        "artifact_read"
+      ],
+      "forbidden": [
+        "credential_change"
+      ]
+    },
+    "approval": {
+      "policy": "if_required"
+    },
+    "preferred_level": "L3",
+    "maximum_level": "L3"
+  },
+  "execution_plan": {
+    "version": 2,
+    "run_id": "run-example-001",
+    "project": "example-project",
+    "selected_level": "L3",
+    "reason": "The reviewed build capability is sufficient.",
+    "capability": "build-runtime",
+    "acceptance_proof": [
+      "build passes",
+      "artifact exists"
+    ],
+    "approval": {
+      "required": false,
+      "reason": "Within the authorized scope."
+    },
+    "execution_binding": {
+      "work_packet_digest": "sha256:f99cc077d810de181f591c4b14fe373cfd6ed3e571f21860d48c704a8fe998b4",
+      "state_fingerprint": {
+        "algorithm": "sha256",
+        "digest": "sha256:0cc97b85b7affb90f9e1546de7214a679df0c03a72e4e25e3743649899ecce08",
+        "inputs": [
+          {
+            "kind": "repository_head",
+            "ref": "example/project",
+            "value": "head-before"
+          }
+        ]
+      },
+      "route": {
+        "proposed": "direct",
+        "policy_minimum": "direct",
+        "authorized": "direct"
+      },
+      "execution_venue": "build-worker"
+    }
+  },
+  "execution_receipt": {
+    "version": 2,
+    "run_id": "run-example-001",
+    "status": "executed",
+    "capability": "build-runtime",
+    "approval": {
+      "status": "not_required"
+    },
+    "authoritative_refs": [
+      {
+        "type": "workflow_run",
+        "value": "run-42"
+      }
+    ],
+    "observations": [
+      "The build completed."
+    ],
+    "execution_binding": {
+      "state_fingerprint": "sha256:0cc97b85b7affb90f9e1546de7214a679df0c03a72e4e25e3743649899ecce08",
+      "execution_plan_digest": "sha256:e85bbd2650472ae2486607fa9b8e660c6eec9a7788e2e52e45ff59e36901f1eb",
+      "route": "direct"
+    },
+    "observed_effects": [
+      "build"
+    ],
+    "execution_venue": "build-worker"
+  },
+  "verification_result": {
+    "version": 2,
+    "run_id": "run-example-001",
+    "status": "verified",
+    "checks": [
+      {
+        "name": "build passes",
+        "passed": true,
+        "evidence": [
+          {
+            "type": "workflow_run",
+            "value": "run-42"
+          }
+        ]
+      },
+      {
+        "name": "artifact exists",
+        "passed": true,
+        "evidence": [
+          {
+            "type": "artifact",
+            "value": "artifact-42"
+          }
+        ]
+      }
+    ],
+    "authoritative_refs": [
+      {
+        "type": "workflow_run",
+        "value": "run-42"
+      },
+      {
+        "type": "artifact",
+        "value": "artifact-42"
+      }
+    ],
+    "execution_receipt_digest": "sha256:07b2123321615ee25ae93ab465e573cefffce2e3e03c0e66487770f25855b516"
+  },
+  "lifecycle_transition": {
+    "version": 2,
+    "run_id": "run-example-001",
+    "from": "verifying",
+    "to": "verified",
+    "verification_result_digest": "sha256:540740b136ad576e5fd87ac13f4022773efe64a182a3f944148ac2365b0c4c3c"
+  }
+}

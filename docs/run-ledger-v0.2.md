@@ -43,6 +43,18 @@ Bounded outcomes are `blocked`, `failed`, `rejected`, and `cancelled`.
 A successful run closes only after lifecycle `verified`. Reaching `executed` means the
 operation finished; it does not prove that the requested outcome is correct.
 
+Before accepting a v0.2 checkpoint transition, validate a snapshot containing its root
+WorkPacket and the predecessor documents required by its phase. Core 0.4.0 requires a
+bound plan for execution, a receipt for executed/verifying phases, and exact passing
+verification for terminal verified. A snapshot contains one current transition;
+validate each historical transition with the documents that supported it at that time.
+
+If a session stops after an external side effect but before saving its receipt, do not
+blindly repeat the operation from `next_action`. The owning capability must reconcile
+its durable operation identifier and provider state first. It may recover an existing
+receipt or retry through its reviewed idempotent route. Core does not provide a
+distributed lock or guarantee exactly-once external execution.
+
 ## Compact checkpoint
 
 A ledger may carry one optional checkpoint with exactly three resume hints:
