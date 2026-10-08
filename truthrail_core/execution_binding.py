@@ -175,9 +175,10 @@ def bind_execution_receipt(
             "ExecutionPlan requires approval before an executed receipt may be issued"
         )
     if approval_doc.get("status") == "approved":
-        approval_doc.setdefault("execution_plan_digest", canonical_digest(plan))
-        if approval_doc["execution_plan_digest"] != canonical_digest(plan):
-            raise ExecutionBindingError("approval belongs to another ExecutionPlan")
+        if approval_doc.get("execution_plan_digest") != canonical_digest(plan):
+            raise ExecutionBindingError(
+                "approved receipt requires an explicit matching plan digest from the approval gate"
+            )
     if execution_venue and binding.get("execution_venue") not in (None, execution_venue):
         raise ExecutionBindingError("receipt venue differs from the bound execution venue")
 
@@ -297,7 +298,10 @@ def bind_verification_result(
 ) -> dict[str, Any]:
     """Bind supplied verification evidence to one receipt; never invent checks."""
     result = deepcopy(dict(verification_result))
-    result["execution_receipt_digest"] = canonical_digest(receipt)
+    receipt_digest = canonical_digest(receipt)
+    if "execution_receipt_digest" in result and result["execution_receipt_digest"] != receipt_digest:
+        raise ExecutionBindingError("verification is already bound to another ExecutionReceipt")
+    result["execution_receipt_digest"] = receipt_digest
     _validate_bundle([
         ("work_packet", dict(work_packet)),
         ("execution_plan", dict(execution_plan)),

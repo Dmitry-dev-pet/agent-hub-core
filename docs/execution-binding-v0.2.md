@@ -82,6 +82,12 @@ validate_run_bundle([
 The complete [JSON example](../examples/v0.2/verified-run.json) is validated in CI.
 Its generic references are fixtures, not a claim that a provider operation took place.
 
+For `approval.status = approved`, the owning gate must supply both its approval
+reference and an explicit matching `execution_plan_digest`. The receipt helper rejects
+missing or stale approval bindings; it never attaches an old approval to a new plan.
+The verification helper may bind a fresh result that has no receipt digest yet. If the
+result already carries a digest, it must match; reusing it for another receipt is rejected.
+
 State inputs contain exactly `kind`, `ref` and `value`. Supported kinds are repository
 HEAD, control-plane contract, policy, provider state and an explicit other category.
 Input order does not change the fingerprint; duplicate kind/ref identities are rejected.

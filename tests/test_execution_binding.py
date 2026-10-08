@@ -245,11 +245,53 @@ class BundleValidationTests(unittest.TestCase):
         validate_run_bundle([("work_packet", work), ("execution_plan", plan), ("lifecycle_transition", transition)])
         with self.assertRaises(ExecutionBindingError):
             bind_execution_receipt(plan, approval={"status": "not_required"}, authoritative_refs=[{"type":"issue", "value":"result"}], observations=[])
-        receipt = bind_execution_receipt(plan, approval={"status":"approved", "reference":"approval-record-1"}, authoritative_refs=[{"type":"issue", "value":"result"}], observations=[])
+        receipt = bind_execution_receipt(plan, approval={"status":"approved", "reference":"approval-record-1", "execution_plan_digest":canonical_digest(plan)}, authoritative_refs=[{"type":"issue", "value":"result"}], observations=[])
         validate_run_bundle([("work_packet", work), ("execution_plan", plan), ("execution_receipt", receipt)])
         receipt["approval"]["execution_plan_digest"] = "sha256:" + "0" * 64
         with self.assertRaisesRegex(ProtocolValidationError, "approval belongs to another"):
             validate_run_bundle([("work_packet", work), ("execution_plan", plan), ("execution_receipt", receipt)])
+
+    def test_receipt_helper_cannot_rebind_old_or_unbound_approval(self):
+        work, plan = packet(), proposal()
+        work["approval"]["policy"] = "required"
+        plan["approval"]["required"] = True
+        before = bind_execution_plan(work, plan, state_inputs=state("before"))
+        after = bind_execution_plan(work, plan, state_inputs=state("after"))
+        trusted_approval = {
+            "status": "approved",
+            "reference": "approval-for-before",
+            "execution_plan_digest": canonical_digest(before),
+        }
+        missing_binding = dict(trusted_approval)
+        del missing_binding["execution_plan_digest"]
+        for approval in (trusted_approval, missing_binding):
+            with self.subTest(bound="execution_plan_digest" in approval):
+                with self.assertRaisesRegex(ExecutionBindingError, "approval gate"):
+                    bind_execution_receipt(
+                        after, approval=approval,
+                        authoritative_refs=[{"type": "workflow_run", "value": "run-after"}],
+                        observations=[],
+                    )
+        self.assertEqual(trusted_approval["execution_plan_digest"], canonical_digest(before))
+
+    def test_verification_helper_cannot_rebind_an_existing_result(self):
+        data = completed_bundle()
+        original_result = deepcopy(data["verification_result"])
+        other_receipt = deepcopy(data["execution_receipt"])
+        other_receipt["observations"] = ["A different completed execution."]
+        other_receipt["authoritative_refs"] = [{"type": "workflow_run", "value": "run-other"}]
+        with self.assertRaisesRegex(ExecutionBindingError, "already bound"):
+            bind_verification_result(
+                data["work_packet"], data["execution_plan"], other_receipt,
+                data["verification_result"],
+            )
+        self.assertEqual(data["verification_result"], original_result)
+        self.assertEqual(
+            bind_verification_result(
+                data["work_packet"], data["execution_plan"], data["execution_receipt"],
+                original_result,
+            ), original_result,
+        )
 
     def test_projection_cannot_print_mismatched_verified_work(self):
         data = completed_bundle()
