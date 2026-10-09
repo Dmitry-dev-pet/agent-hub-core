@@ -1,6 +1,6 @@
 ---
 name: orchestrate-action
-description: Execute an authorized Agent Hub action through the owning capability and verify the outcome separately from execution.
+description: Execute an authorized Truthrail action through the owning capability and verify the outcome separately from execution.
 ---
 
 # Orchestrate an action

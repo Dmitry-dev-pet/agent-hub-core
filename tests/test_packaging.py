@@ -11,7 +11,7 @@ from truthrail_core.validation import validate_document as canonical_validate_do
 
 class PackagingTests(unittest.TestCase):
     def test_version(self):
-        self.assertEqual(truthrail_core.__version__, "0.4.0")
+        self.assertEqual(truthrail_core.__version__, "0.4.1")
         self.assertEqual(agent_hub_core.__version__, truthrail_core.__version__)
 
     def test_canonical_namespace_reuses_legacy_implementation(self):

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 — 2026-10-09
+
+- use the canonical Truthrail name in portable skill descriptions and headings while preserving legacy technical identifiers, imports and GitHub routes;
+- add a regression check preventing the deprecated product label from resurfacing in portable skill instructions.
+
 ## 0.4.0 — 2026-10-08
 
 - enforce v0.2 task, project, acceptance-proof, execution-ceiling, approval, capability and handoff-scope consistency across a complete run snapshot;

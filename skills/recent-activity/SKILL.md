@@ -1,6 +1,6 @@
 ---
 name: recent-activity
-description: Reconstruct fresh activity across an Agent Hub instance using reconciliation hints plus authoritative live verification.
+description: Reconstruct fresh activity across an Truthrail instance using reconciliation hints plus authoritative live verification.
 ---
 
 # Reconstruct recent activity
