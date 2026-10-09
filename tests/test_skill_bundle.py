@@ -35,5 +35,12 @@ class SkillBundleTests(unittest.TestCase):
                 self.assertEqual(metadata["name"], skill_id)
 
 
+    def test_portable_skills_use_current_product_name(self):
+        """Instruction and trigger text should not reintroduce the old product label."""
+        for path in sorted((ROOT / "skills").glob("*/SKILL.md")):
+            with self.subTest(skill=path.parent.name):
+                self.assertNotIn("Agent Hub", path.read_text(encoding="utf-8"))
+
+
 if __name__ == "__main__":
     unittest.main()

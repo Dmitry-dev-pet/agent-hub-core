@@ -1,6 +1,6 @@
 ---
 name: rebuild-context
-description: Rebuild a project's authoritative current context from an Agent Hub instance without relying on conversation memory.
+description: Rebuild a project's authoritative current context from an Truthrail instance without relying on conversation memory.
 ---
 
 # Rebuild project context

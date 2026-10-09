@@ -1,14 +1,14 @@
 ---
 name: activate-capability
-description: Inspect and progressively activate an Agent Hub capability using readiness states, narrow prerequisites, provider-safe credential routes, and verified activation receipts.
+description: Inspect and progressively activate an Truthrail capability using readiness states, narrow prerequisites, provider-safe credential routes, and verified activation receipts.
 ---
 
-# Activate an Agent Hub capability
+# Activate an Truthrail capability
 
 Use this skill when a requested outcome requires a capability that is not currently
 `ready`, or when the user explicitly asks to enable/complete/configure a capability.
 
-Read `capabilities/contract.yaml` from the current Agent Hub Core before acting.
+Read `capabilities/contract.yaml` from the current Truthrail Core before acting.
 
 ## 1. Establish readiness
 
